@@ -33,6 +33,7 @@ ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :MOUNTPOINT
+ECHO !M1!
 MOUNTVOL !M1!: %%a>nul
 IF EXIST !M1!:\Recovery\WindowsRE\WinRE.wim (
 wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
@@ -45,7 +46,7 @@ GOTO EXTRACTED
 :EXTRACTED
 MOUNTVOL !M1!: /D>nul
 )
-IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (ENDLOCAL &ECHO.&ECHO WARNING - No recovery partition exists!! ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT)
+IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (ECHO WARNING - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT)
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETUNLOCKER
@@ -176,7 +177,7 @@ SET %2=%errorlevel%
 EXIT /b
 :MOUNTPOINT
 SET MT=1
-FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
+FOR %%a IN (W V U T S R Q P O N M L K J I H G F E D) DO (
 IF NOT EXIST %%a:\* (
 SET M!MT!=%%a
 SET /A MT+=1

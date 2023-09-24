@@ -31,17 +31,19 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7
 :: Find a recovery partition
 ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
-MOUNTVOL S: %%a>nul
-IF EXIST S:\Recovery\WindowsRE\WinRE.wim (
-wimlib-imagex extract S:\Recovery\WindowsRE\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract S:\Recovery\WindowsRE\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract S:\Recovery\WindowsRE\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract S:\Recovery\WindowsRE\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract S:\Recovery\WindowsRE\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+SETLOCAL ENABLEDELAYEDEXPANSION
+CALL :MOUNTPOINT
+MOUNTVOL !M1!: %%a>nul
+IF EXIST !M1!:\Recovery\WindowsRE\WinRE.wim (
+wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 GOTO EXTRACTED
 )
 :EXTRACTED
-MOUNTVOL S: /D>nul
+MOUNTVOL !M1!: /D>nul
 )
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
@@ -170,4 +172,14 @@ EXIT /b
 :DISKEXIST
 >nul 2>&1 POWERSHELL -nop -c "Get-Disk %1"
 SET %2=%errorlevel%
+EXIT /b
+:MOUNTPOINT
+SET MT=1
+FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
+IF NOT EXIST %%a:\* (
+SET M!MT!=%%a
+SET /A MT+=1
+)
+IF !MT! GEQ 2 ENDLOCAL &EXIT /b
+)
 EXIT /b

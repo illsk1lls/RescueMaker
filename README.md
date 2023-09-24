@@ -1,5 +1,5 @@
 # RescueMaker
 
-Create and burn a recovery USB with your host OS.
+Create and burn a recovery USB using resources from your host OS.
 
-This example uses the users HostOS to create a bootable password reset USB.
+This example makes a bootable password reset USB using WindowsLoginUnlocker.

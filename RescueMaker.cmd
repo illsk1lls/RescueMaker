@@ -42,6 +42,8 @@ wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\ProgramData" --no-a
 wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 GOTO EXTRACTED
 )
+ENDLOCAL
+ECHO.&ECHO WARNING - No recovery partition exists!! ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT
 :EXTRACTED
 MOUNTVOL !M1!: /D>nul
 )
@@ -52,13 +54,13 @@ COPY /Y "%~dp0RescueMaker\WLU.exe" "%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul
 CALL :SETSTARTUP
 CALL :BURNMENU
-ECHO Media Creation Complete! & ECHO.
+ECHO Media Creation Complete! &ECHO.
 :CLEANUPANDEXIT
 :: Remove cache folders
 POPD&>nul 2>&1 RD "%~dp0RescueMaker" /S /Q
 PAUSE
 :: Self delete and exit
-(GOTO) 2>nul & del "%~f0">nul & EXIT
+(GOTO) 2>nul & del "%~f0">nul&EXIT
 :BURNMENU
 SET "USBDISK="&SET "EXISTS="&SET "DTYPE2="&SET "L1="&SET "L2="&SET "LASTCHECK="&DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
 CLS

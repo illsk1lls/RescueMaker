@@ -33,7 +33,6 @@ ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :MOUNTPOINT
-ECHO !M1!
 MOUNTVOL !M1!: %%a>nul
 IF EXIST !M1!:\Recovery\WindowsRE\WinRE.wim (
 wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
@@ -46,7 +45,6 @@ GOTO EXTRACTED
 :EXTRACTED
 MOUNTVOL !M1!: /D>nul
 )
-IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (ECHO WARNING - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT)
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETUNLOCKER
@@ -54,13 +52,13 @@ COPY /Y "%~dp0RescueMaker\WLU.exe" "%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul
 CALL :SETSTARTUP
 CALL :BURNMENU
-ECHO Media Creation Complete! &ECHO.
+ECHO Media Creation Complete! & ECHO.
 :CLEANUPANDEXIT
 :: Remove cache folders
 POPD&>nul 2>&1 RD "%~dp0RescueMaker" /S /Q
 PAUSE
 :: Self delete and exit
-(GOTO) 2>nul & del "%~f0">nul&EXIT
+(GOTO) 2>nul & del "%~f0">nul & EXIT
 :BURNMENU
 SET "USBDISK="&SET "EXISTS="&SET "DTYPE2="&SET "L1="&SET "L2="&SET "LASTCHECK="&DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
 CLS
@@ -177,7 +175,7 @@ SET %2=%errorlevel%
 EXIT /b
 :MOUNTPOINT
 SET MT=1
-FOR %%a IN (W V U T S R Q P O N M L K J I H G F E D) DO (
+FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
 IF NOT EXIST %%a:\* (
 SET M!MT!=%%a
 SET /A MT+=1

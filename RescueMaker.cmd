@@ -42,11 +42,10 @@ wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\ProgramData" --no-a
 wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 GOTO EXTRACTED
 )
-ENDLOCAL
-ECHO.&ECHO WARNING - No recovery partition exists!! ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT
 :EXTRACTED
 MOUNTVOL !M1!: /D>nul
 )
+IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (ECHO.&ECHO WARNING - No recovery partition exists!! ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT)
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETUNLOCKER

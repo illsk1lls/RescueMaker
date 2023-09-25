@@ -10,7 +10,7 @@ TITLE %TitleName%
 >nul 2>&1 reg delete hkcu\software\classes\.RescueMaker\ /f &>nul 2>&1 del %ProgramData%\runas.RescueMaker /f /q
 :: Check system - Win11/10 Supported - Both show up as 10
 FOR /F "usebackq skip=2 tokens=3-4" %%i IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName 2^>nul`) DO IF NOT "%%i %%j"=="Windows 10" ECHO. & ECHO Unsupported system detected. & ECHO. & PAUSE & EXIT
-:: Copy self to %ProgramData% and run from there (cleanup temp files and self delete at end of script :CLEANUPANDEXIT)
+:: Copy self to %ProgramData% and run from there
 CD /D %~dp0
 IF NOT "%~f0" EQU "%ProgramData%\%~nx0" (
 COPY /Y "%~f0" "%ProgramData%">nul

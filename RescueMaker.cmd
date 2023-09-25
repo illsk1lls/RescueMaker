@@ -52,7 +52,7 @@ CALL :FINDRE
 IF "!R1!"=="" (
 ENDLOCAL &ECHO WARNING! - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT
 ) ELSE (
-SET M1=!R1!
+SET L1=!R1!
 GOTO EXTRACT
 )
 )

@@ -23,7 +23,7 @@ EXIT /b
 IF EXIST "%~dp0RescueMaker" RD "%~dp0RescueMaker" /S /Q>nul
 MD "%~dp0RescueMaker\Junkbin">nul
 MD "%~dp0RescueMaker\Root">nul
-:: Get 7-Zip - Wimlib-ImageX - SetACL(This may be needed for some apps)
+:: Get 7-Zip - Wimlib-ImageX - SetACL
 ECHO. & ECHO Getting Utilities...
 PUSHD "%~dp0RescueMaker" & PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7zr.exe'"; "Invoke-WebRequest -Uri https://www.7-zip.org/a/7z2300-extra.7z -o '7zExtra.7z'"; "Invoke-WebRequest -Uri https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -o 'wimlib.zip'"; "Invoke-WebRequest -Uri https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -o 'SetACL.zip'"

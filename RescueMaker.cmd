@@ -32,27 +32,27 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7
 ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
-CALL :AVAILABLEDRIVELETTERS 1
-MOUNTVOL !L1!: %%a>nul
+CALL :MOUNTPOINT
+MOUNTVOL !M1!: %%a>nul
 SET "WinRePath=Recovery\WindowsRE"
 :EXTRACT
-IF EXIST !L1!:\Recovery\WindowsRE\WinRE.wim (
-wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+IF EXIST !M1!:\Recovery\WindowsRE\WinRE.wim (
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 GOTO EXTRACTED
 )
 :EXTRACTED
-IF "!NOUNMOUNT!"=="" MOUNTVOL !L1!: /D>nul
+IF "!NOUNMOUNT!"=="" MOUNTVOL !M1!: /D>nul
 )
 IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (
 CALL :FINDRE
 IF "!R1!"=="" (
 ENDLOCAL &ECHO WARNING! - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT
 ) ELSE (
-SET L1=!R1!
+SET M1=!R1!
 GOTO EXTRACT
 )
 )
@@ -82,7 +82,7 @@ CALL :GETDISKTYPE DTYPE2
 IF NOT "!DTYPE2!"=="USB" DEL "%~dp0RescueMaker\currentdisk.diskpart" /F /Q>nul&SET "USBDISK="&ECHO.&ECHO The selected disk is not a USB device. Only USB drives are supported at this time.&ECHO.&PAUSE&ECHO.&GOTO BURNMENU
 CALL :VERIFYDELETE %USBDISK% LASTCHECK
 IF "!LASTCHECK!"=="N" GOTO BURNMENU
-CALL :AVAILABLEDRIVELETTERS 2
+CALL :AVAILABLEDRIVELETTERS
 CALL :CONFIGDISKPART %USBDISK% !L1! !L2!
 ECHO Formatting USB...&ECHO.
 >nul 2>&1 DISKPART /S "%~dp0\RescueMaker\Clean.diskpart"
@@ -169,20 +169,28 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMa
 7za.exe e -y WLU.7z -o..>nul&POPD
 EXIT /b
 :AVAILABLEDRIVELETTERS
-SET LT=%1
+SET LT=1
 FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
-SET CURRENT=%%a
 IF NOT EXIST %%a:\* (
-SET L!LT!=!CURRENT!
-SET /A LT-=1
+SET L!LT!=%%a
+SET /A LT+=1
 )
-)
-IF !LT! LEQ 0 ENDLOCAL &EXIT /b
+IF !LT! GEQ 3 ENDLOCAL &EXIT /b
 )
 EXIT /b
 :DISKEXIST
 >nul 2>&1 POWERSHELL -nop -c "Get-Disk %1"
 SET %2=%errorlevel%
+EXIT /b
+:MOUNTPOINT
+SET MT=1
+FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
+IF NOT EXIST %%a:\* (
+SET M!MT!=%%a
+SET /A MT+=1
+)
+IF !MT! GEQ 2 ENDLOCAL &EXIT /b
+)
 EXIT /b
 :FINDRE
 SET "R1=" & SET "RT=1"

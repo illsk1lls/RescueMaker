@@ -172,6 +172,7 @@ EXIT /b
 SET LT=%1
 FOR %%a IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 IF NOT EXIST %%a:\* (
+SET DVDDRIVE=0
 FOR /f "usebackq skip=1 tokens=1" %%d IN (`^>nul 2^>^&1 "wmic logicaldisk !CURRENT!: drivetype"`) DO (
 IF "%%d"=="5" SET DVDDRIVE=1
 )

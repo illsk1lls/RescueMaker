@@ -29,37 +29,40 @@ PUSHD "%~dp0RescueMaker" & PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7zr.exe'"; "Invoke-WebRequest -Uri https://www.7-zip.org/a/7z2300-extra.7z -o '7zExtra.7z'"; "Invoke-WebRequest -Uri https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -o 'wimlib.zip'"; "Invoke-WebRequest -Uri https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -o 'SetACL.zip'"
 7zr.exe e -y 7zExtra.7z>nul & 7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul & 7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul & 7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul & POPD
 :: Find a recovery partition
-ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.
+ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :MOUNTPOINT
 MOUNTVOL !M1!: %%a>nul
+SET "WinRePath=Recovery\WindowsRE"
+:EXTRACT
 IF EXIST !M1!:\Recovery\WindowsRE\WinRE.wim (
-wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-wimlib-imagex extract !M1!:\Recovery\WindowsRE\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+wimlib-imagex extract !M1!:\!WinRePath!\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 GOTO EXTRACTED
 )
 :EXTRACTED
-MOUNTVOL !M1!: /D>nul
+IF "!NOUNMOUNT!"=="" MOUNTVOL !M1!: /D>nul
 )
-IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (ENDLOCAL &ECHO WARNING! - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT)
+IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (
+CALL :FINDRE
+IF "!R1!"=="" (
+ENDLOCAL &ECHO WARNING! - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)&ECHO.&ECHO Aborting process and cleaning up cache folders..&ECHO.&GOTO CLEANUPANDEXIT
+) ELSE (
+SET M1=!R1!
+GOTO EXTRACT
+)
+)
+ENDLOCAL
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETUNLOCKER
 COPY /Y "%~dp0RescueMaker\WLU.exe" "%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul
 CALL :SETSTARTUP
-CALL :BURNMENU
-ECHO Media Creation Complete! & ECHO.
-:CLEANUPANDEXIT
-:: Remove cache folders
-POPD&>nul 2>&1 RD "%~dp0RescueMaker" /S /Q
-PAUSE
-:: Self delete and exit
-(GOTO) 2>nul & del "%~f0">nul & EXIT
 :BURNMENU
 SET "USBDISK="&SET "EXISTS="&SET "DTYPE2="&SET "L1="&SET "L2="&SET "LASTCHECK="&DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
 CLS
@@ -93,8 +96,13 @@ DEL "%~dp0RescueMaker\*.diskpart" /F /Q
 ECHO Copying Files, Please Wait...&ECHO.
 >nul 2>&1 XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y
 BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast
-ENDLOCAL&ECHO.
-EXIT /b
+ECHO.&ECHO Media Creation Complete! & ECHO.
+:CLEANUPANDEXIT
+:: Remove cache folders
+POPD&>nul 2>&1 RD "%~dp0RescueMaker" /S /Q
+PAUSE
+:: Self delete and exit
+(GOTO) 2>nul & del "%~f0">nul & EXIT
 :LISTDISKS
 (ECHO lis dis)>"%~dp0RescueMaker\list.diskpart"&ECHO.
 FOR /F "usebackq skip=2 tokens=1,2,4,5" %%a in (`DISKPART /S "%~dp0RescueMaker\list.diskpart" ^| FIND "Disk"`) DO (
@@ -182,5 +190,22 @@ SET M!MT!=%%a
 SET /A MT+=1
 )
 IF !MT! GEQ 2 ENDLOCAL &EXIT /b
+)
+EXIT /b
+:FINDRE
+SET "R1=" & SET "RT=1"
+FOR %%a IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+IF EXIST %%a:\Recovery\WindowsRE\WinRE.wim (
+SET NOUNMOUNT=1
+SET R!RT!=%%a
+SET /A RT+=1
+)
+IF EXIST %%a:\Windows\System32\Recovery\WinRE.wim (
+SET "WinRePath=Windows\System32\Recovery"
+SET NOUNMOUNT=1
+SET R!RT!=%%a
+SET /A RT+=1
+)
+IF !RT! GEQ 2 ENDLOCAL &EXIT /b
 )
 EXIT /b

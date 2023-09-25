@@ -170,14 +170,9 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMa
 EXIT /b
 :AVAILABLEDRIVELETTERS
 SET LT=%1
-FOR %%a IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
 SET CURRENT=%%a
 IF NOT EXIST %%a:\* (
-SET DVDDRIVE=0
-FOR /f "usebackq skip=1 tokens=1" %%d IN (`^>nul 2^>^&1 "wmic logicaldisk !CURRENT!: drivetype"`) DO (
-IF "%%d"=="5" SET DVDDRIVE=1
-)
-IF NOT "DVDDRIVE"=="1" (
 SET L!LT!=!CURRENT!
 SET /A LT-=1
 )

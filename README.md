@@ -2,7 +2,7 @@
 
 Create and burn a simple recovery USB using resources from your host OS.
 
-This example makes a bootable password reset USB using WindowsLoginUnlocker.
+This example makes a bootable password reset USB with WindowsLoginUnlocker.
 
 Credit to:<br>
 Wimlib-Imagex - <a href="https://wimlib.net">https://wimlib.net</a><br>

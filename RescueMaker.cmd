@@ -178,7 +178,7 @@ FOR /f "usebackq skip=1 tokens=1" %%d IN (`^>nul 2^>^&1 "wmic logicaldisk !CURRE
 IF "%%d"=="5" SET DVDDRIVE=1
 )
 IF NOT "DVDDRIVE"=="1" (
-SET L!LT!=%%a
+SET L!LT!=!CURRENT!
 SET /A LT-=1
 )
 )

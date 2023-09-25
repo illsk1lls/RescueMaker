@@ -172,7 +172,6 @@ EXIT /b
 SET LT=%1
 FOR %%a IN (Z Y X W V U T S R Q P O N M L K J I H G F E D) DO (
 IF NOT EXIST %%a:\* (
-SET DVDDRIVE=0
 SET L!LT!=%%a
 SET /A LT-=1
 )

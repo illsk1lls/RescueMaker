@@ -1,6 +1,6 @@
 # RescueMaker
 
-Create and burn a simple recovery USB using resources from your host OS.
+Create and burn a simple password reset USB with any Win10/11 host OS.
 
 This example makes a bootable password reset USB with WindowsLoginUnlocker.
 

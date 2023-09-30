@@ -101,6 +101,7 @@ DEL "%~dp0RescueMaker\*.diskpart" /F /Q
 ECHO Copying Files, Please Wait...&ECHO.
 >nul 2>&1 XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y
 BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast
+MOUNTVOL !L2!: /D>nul
 ECHO.&ECHO Media Creation Complete! & ECHO.
 :CLEANUPANDEXIT
 :: Remove cache folders
@@ -179,9 +180,7 @@ FOR %%a IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 SET CURRENT=%%a
 IF NOT EXIST !CURRENT!:\* (
 SET UNUSABLE=0
-FOR /f "usebackq skip=1 tokens=1" %%d IN (`^>nul 2^>^&1 "wmic logicaldisk !CURRENT!: drivetype"`) DO (
-IF "%%d"=="5" SET UNUSABLE=1
-)
+FOR /F "usebackq tokens=3" %%d in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (IF "%%d"=="CD-ROM" SET UNUSABLE=1)
 IF NOT "!UNUSABLE!"=="1" (
 FOR /F "usebackq tokens=3" %%g in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (
 IF "%%g"=="No" (

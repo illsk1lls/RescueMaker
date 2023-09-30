@@ -36,7 +36,7 @@ CALL :AVAILABLEDRIVELETTERS 1
 MOUNTVOL !L1!: %%a>nul
 SET "WinRePath=Recovery\WindowsRE"
 :EXTRACT
-IF EXIST !L1!:\Recovery\WindowsRE\WinRE.wim (
+IF EXIST !L1!:\!WinRePath!\WinRE.wim (
 wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
 wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"

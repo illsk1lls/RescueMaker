@@ -60,8 +60,8 @@ ENDLOCAL
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETUNLOCKER
-COPY /Y "%~dp0RescueMaker\WLU.exe" "%~dp0RescueMaker\Root\Windows\System32">nul
-COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul
+CALL :GETEXPLORER
+CALL :GETPROCMON
 CALL :SETSTARTUP
 :BURNMENU
 SET "USBDISK="&SET "EXISTS="&SET "DTYPE2="&SET "L1="&SET "L2="&SET "LASTCHECK="&DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
@@ -167,13 +167,29 @@ EXIT /b
 :SETSTARTUP
 (
 ECHO [LaunchApp]
-ECHO AppPath=X:\Windows\System32\WLU.exe
+ECHO AppPath=%%SystemDrive%%\StartUp.cmd
 )>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
+(
+ECHO @ECHO OFF
+ECHO START "" "%%SystemDrive%%\Windows\System32\WLU.exe"
+ECHO START /WAIT "" "%%SystemDrive%%\Windows\Explorer++.exe"
+)>"%~dp0RescueMaker\Root\StartUp.cmd"
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Tools/WindowsLoginUnlocker/WLU.7z -o 'WLU.7z'"
-7za.exe e -y WLU.7z -o..>nul&POPD
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Tools/WindowsLoginUnlocker/WLU.7z -o '%~dp0RescueMaker\WLU.7z'"
+7za.exe e -y "%~dp0RescueMaker\WLU.7z" -o"%~dp0RescueMaker\Root\Windows\System32" >nul
+COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul&POPD
+EXIT /b
+:GETEXPLORER
+PUSHD "%~dp0RescueMaker\Junkbin"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip -o '%~dp0RescueMaker\explorerpp_x64.zip'"
+7za.exe e -y "%~dp0RescueMaker\explorerpp_x64.zip" -o"%~dp0RescueMaker\Root\Windows" >nul&POPD
+EXIT /b
+:GETPROCMON
+PUSHD "%~dp0RescueMaker\Junkbin"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.sysinternals.com/files/ProcessMonitor.zip -o '%~dp0RescueMaker\ProcMon.zip'"
+MD "%~dp0RescueMaker\Root\Program Files\ProcMon" & 7za.exe e -y "%~dp0RescueMaker\ProcMon.zip" -o"%~dp0RescueMaker\Root\Program Files\ProcMon" >nul&POPD
 EXIT /b
 :AVAILABLEDRIVELETTERS
 SET LT=%1&SET "L1="&SET "L2="

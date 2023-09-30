@@ -29,12 +29,11 @@ PUSHD "%~dp0RescueMaker" & PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7zr.exe'"; "Invoke-WebRequest -Uri https://www.7-zip.org/a/7z2300-extra.7z -o '7zExtra.7z'"; "Invoke-WebRequest -Uri https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -o 'wimlib.zip'"; "Invoke-WebRequest -Uri https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -o 'SetACL.zip'"
 7zr.exe e -y 7zExtra.7z>nul & 7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul & 7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul & 7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul & POPD
 :: Find a recovery partition
-ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="
+ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :AVAILABLEDRIVELETTERS 1
-MOUNTVOL !L1!: %%a>nul
-SET "WinRePath=Recovery\WindowsRE"
+MOUNTVOL !L1!: %%a
 :EXTRACT
 IF EXIST !L1!:\!WinRePath!\WinRE.wim (
 wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
@@ -175,15 +174,16 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMa
 7za.exe e -y WLU.7z -o..>nul&POPD
 EXIT /b
 :AVAILABLEDRIVELETTERS
-SET LT=%1
+SET LT=%1&SET "L1="&SET "L2="
 FOR %%a IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 SET CURRENT=%%a
-IF NOT EXIST %%a:\* (
-SET DVDDRIVE=0
+IF NOT EXIST !CURRENT!:\* (
+SET UNUSABLE=0
 FOR /f "usebackq skip=1 tokens=1" %%d IN (`^>nul 2^>^&1 "wmic logicaldisk !CURRENT!: drivetype"`) DO (
-IF "%%d"=="5" SET DVDDRIVE=1
+IF "%%d"=="5" SET UNUSABLE=1
 )
-IF NOT "!DVDDRIVE!"=="1" (
+IF NOT "!UNUSABLE!"=="1" (
+MOUNTVOL !CURRENT!: /D>nul
 SET L!LT!=!CURRENT!
 SET /A LT-=1
 )
@@ -196,7 +196,7 @@ EXIT /b
 SET %2=%errorlevel%
 EXIT /b
 :FINDRE
-SET "R1=" & SET "RT=1"
+SET "RT=1"&SET "R1="
 FOR %%a IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 IF EXIST %%a:\Recovery\WindowsRE\WinRE.wim (
 SET NOUNMOUNT=1

@@ -61,6 +61,7 @@ ENDLOCAL
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETUNLOCKER
 CALL :GETEXPLORER
+CALL :GETHDDTEST
 CALL :GETPROCMON
 CALL :SETSTARTUP
 :BURNMENU
@@ -99,15 +100,14 @@ TIMEOUT /T 2 /NOBREAK>nul
 TIMEOUT /T 2 /NOBREAK>nul
 >nul 2>&1 DISKPART /S "%~dp0\RescueMaker\InitBoot.diskpart"
 DEL "%~dp0RescueMaker\*.diskpart" /F /Q
-ECHO Copying Files, Please Wait...&ECHO.
->nul 2>&1 XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y
+ECHO Copying files to USB, Please Wait... ^(This may take a few minutes^)&ECHO.
+XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y /Z /G /Q&ECHO.
 BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast
-MOUNTVOL !L2!: /D>nul
-ECHO.&ECHO Media Creation Complete! & ECHO.
+MOUNTVOL !L2!: /D>nul&SETLOCAL DISABLEDELAYEDEXPANSION
+ECHO.&ECHO Bootable USB Creation Complete! &ECHO.
 :CLEANUPANDEXIT
 :: Remove cache folders
-POPD&>nul 2>&1 RD "%~dp0RescueMaker" /S /Q
-PAUSE
+POPD&>nul 2>&1 RD "%~dp0RescueMaker" /S /Q&PAUSE
 :: Self delete and exit
 (GOTO) 2>nul & del "%~f0">nul & EXIT
 :LISTDISKS
@@ -171,6 +171,7 @@ ECHO AppPath=%%SystemDrive%%\StartUp.cmd
 )>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
 (
 ECHO @ECHO OFF
+ECHO START "" "%%ProgramFiles%%\CrystalDisk\DiskInfo64.exe"
 ECHO START "" "%%SystemDrive%%\Windows\System32\WLU.exe"
 ECHO START /WAIT "" "%%SystemDrive%%\Windows\Explorer++.exe"
 )>"%~dp0RescueMaker\Root\StartUp.cmd"
@@ -178,18 +179,23 @@ EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Tools/WindowsLoginUnlocker/WLU.7z -o '%~dp0RescueMaker\WLU.7z'"
-7za.exe e -y "%~dp0RescueMaker\WLU.7z" -o"%~dp0RescueMaker\Root\Windows\System32" >nul
+7za.exe x -y "%~dp0RescueMaker\WLU.7z" -o"%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul&POPD
 EXIT /b
 :GETEXPLORER
 PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip -o '%~dp0RescueMaker\explorerpp_x64.zip'"
-7za.exe e -y "%~dp0RescueMaker\explorerpp_x64.zip" -o"%~dp0RescueMaker\Root\Windows" >nul&POPD
+7za.exe x -y "%~dp0RescueMaker\explorerpp_x64.zip" -o"%~dp0RescueMaker\Root\Windows">nul&POPD
+EXIT /b
+:GETHDDTEST
+PUSHD "%~dp0RescueMaker\Junkbin"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip -o '%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip'"
+MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul&POPD
 EXIT /b
 :GETPROCMON
 PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.sysinternals.com/files/ProcessMonitor.zip -o '%~dp0RescueMaker\ProcMon.zip'"
-MD "%~dp0RescueMaker\Root\Program Files\ProcMon" & 7za.exe e -y "%~dp0RescueMaker\ProcMon.zip" -o"%~dp0RescueMaker\Root\Program Files\ProcMon" >nul&POPD
+MD "%~dp0RescueMaker\Root\Program Files\ProcMon"&7za.exe x -y "%~dp0RescueMaker\ProcMon.zip" -o"%~dp0RescueMaker\Root\Program Files\ProcMon">nul&POPD
 EXIT /b
 :AVAILABLEDRIVELETTERS
 SET LT=%1&SET "L1="&SET "L2="

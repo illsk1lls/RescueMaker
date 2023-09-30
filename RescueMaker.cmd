@@ -2,7 +2,7 @@
 :: Only one instance allowed at a time
 SET "TitleName=RescueMaker"
 TASKLIST /V /NH /FI "imagename eq cmd.exe"|FIND /I /C "%TitleName%">nul
-IF NOT %errorlevel%==1 (ECHO ERROR: & ECHO RescueMaker is already open!) |MSG * & EXIT /b
+IF NOT %errorlevel%==1 (ECHO ERROR:&ECHO RescueMaker is already open!) |MSG * & EXIT /b
 TITLE %TitleName%
 :: Ask for Admin rights
 >nul 2>&1 reg add hkcu\software\classes\.RescueMaker\shell\runas\command /f /ve /d "cmd /x /d /r set \"f0=%%2\"& call \"%%2\" %%3"& set _= %*
@@ -20,14 +20,15 @@ EXIT /b
 :: Center window
 >nul 2>&1 POWERSHELL -nop -ep Bypass -c "$w=Add-Type -Name WAPI -PassThru -MemberDefinition '[DllImport(\"user32.dll\")]public static extern void SetProcessDPIAware();[DllImport(\"shcore.dll\")]public static extern void SetProcessDpiAwareness(int value);[DllImport(\"kernel32.dll\")]public static extern IntPtr GetConsoleWindow();[DllImport(\"user32.dll\")]public static extern void GetWindowRect(IntPtr hwnd, int[] rect);[DllImport(\"user32.dll\")]public static extern void GetClientRect(IntPtr hwnd, int[] rect);[DllImport(\"user32.dll\")]public static extern void GetMonitorInfoW(IntPtr hMonitor, int[] lpmi);[DllImport(\"user32.dll\")]public static extern IntPtr MonitorFromWindow(IntPtr hwnd, int dwFlags);[DllImport(\"user32.dll\")]public static extern int SetWindowPos(IntPtr hwnd, IntPtr hwndAfterZ, int x, int y, int w, int h, int flags);';$PROCESS_PER_MONITOR_DPI_AWARE=2;try {$w::SetProcessDpiAwareness($PROCESS_PER_MONITOR_DPI_AWARE)} catch {$w::SetProcessDPIAware()}$hwnd=$w::GetConsoleWindow();$moninf=[int[]]::new(10);$moninf[0]=40;$MONITOR_DEFAULTTONEAREST=2;$w::GetMonitorInfoW($w::MonitorFromWindow($hwnd, $MONITOR_DEFAULTTONEAREST), $moninf);$monwidth=$moninf[7] - $moninf[5];$monheight=$moninf[8] - $moninf[6];$wrect=[int[]]::new(4);$w::GetWindowRect($hwnd, $wrect);$winwidth=$wrect[2] - $wrect[0];$winheight=$wrect[3] - $wrect[1];$x=[int][math]::Round($moninf[5] + $monwidth / 2 - $winwidth / 2);$y=[int][math]::Round($moninf[6] + $monheight / 2 - $winheight / 2);$SWP_NOSIZE=0x0001;$SWP_NOZORDER=0x0004;exit [int]($w::SetWindowPos($hwnd, [IntPtr]::Zero, $x, $y, 0, 0, $SWP_NOSIZE -bOr $SWP_NOZORDER) -eq 0)"
 :: Create cache folders
+ECHO.&ECHO Getting Ready...
 IF EXIST "%~dp0RescueMaker" RD "%~dp0RescueMaker" /S /Q>nul
 MD "%~dp0RescueMaker\Junkbin">nul
 MD "%~dp0RescueMaker\Root">nul
 :: Get 7-Zip - Wimlib-ImageX - SetACL
-ECHO. & ECHO Getting Utilities...
-PUSHD "%~dp0RescueMaker" & PUSHD "%~dp0RescueMaker\Junkbin"
+CLS&ECHO.&ECHO Getting Utilities...
+PUSHD "%~dp0RescueMaker"&PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7zr.exe'"; "Invoke-WebRequest -Uri https://www.7-zip.org/a/7z2300-extra.7z -o '7zExtra.7z'"; "Invoke-WebRequest -Uri https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -o 'wimlib.zip'"; "Invoke-WebRequest -Uri https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -o 'SetACL.zip'"
-7zr.exe e -y 7zExtra.7z>nul & 7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul & 7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul & 7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul & POPD
+7zr.exe e -y 7zExtra.7z>nul&7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul&7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul&7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul&POPD
 :: Find a recovery partition
 ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
@@ -156,12 +157,12 @@ EXIT /b
 )
 EXIT /b
 :CONFIGDISKPART
-(ECHO Sel Dis %1 & ECHO clean & ECHO Exit)>"%~dp0\RescueMaker\Clean.diskpart"
-(ECHO Sel Dis %1 & ECHO attribute disk clear readonly & ECHO Exit)>"%~dp0\RescueMaker\Attrib.diskpart"
-(ECHO Sel Dis %1 & ECHO cre par pri & ECHO format quick fs=NTFS label=scrubber & ECHO Exit)>"%~dp0\RescueMaker\Scrubber.diskpart"
-(ECHO Sel Dis %1 & ECHO convert gpt & ECHO Exit)>"%~dp0\RescueMaker\Convert.diskpart"
-(ECHO Sel Dis %1 & ECHO cre par pri & ECHO shrink minimum=200 & ECHO format quick fs=ntfs label="RescueDisk" & ECHO assign letter=%2 &ECHO Exit)>"%~dp0\RescueMaker\InitData.diskpart"
-(ECHO Sel Dis %1 & ECHO cre par efi & ECHO format quick fs=fat32 label="Boot" & ECHO assign letter=%3 & ECHO Exit)>"%~dp0\RescueMaker\InitBoot.diskpart"
+(ECHO Sel Dis %1&ECHO clean&ECHO Exit)>"%~dp0\RescueMaker\Clean.diskpart"
+(ECHO Sel Dis %1&ECHO attribute disk clear readonly&ECHO Exit)>"%~dp0\RescueMaker\Attrib.diskpart"
+(ECHO Sel Dis %1&ECHO cre par pri&ECHO format quick fs=NTFS label=scrubber&ECHO Exit)>"%~dp0\RescueMaker\Scrubber.diskpart"
+(ECHO Sel Dis %1&ECHO convert gpt&ECHO Exit)>"%~dp0\RescueMaker\Convert.diskpart"
+(ECHO Sel Dis %1&ECHO cre par pri&ECHO shrink minimum=200&ECHO format quick fs=ntfs label="RescueDisk"&ECHO assign letter=%2&ECHO Exit)>"%~dp0\RescueMaker\InitData.diskpart"
+(ECHO Sel Dis %1&ECHO cre par efi&ECHO format quick fs=fat32 label="Boot"&ECHO assign letter=%3&ECHO Exit)>"%~dp0\RescueMaker\InitBoot.diskpart"
 EXIT /b
 :SETSTARTUP
 (

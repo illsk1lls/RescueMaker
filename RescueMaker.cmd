@@ -33,7 +33,7 @@ ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinR
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :AVAILABLEDRIVELETTERS 1
-MOUNTVOL !L1!: %%a
+MOUNTVOL !L1!: %%a>nul
 :EXTRACT
 IF EXIST !L1!:\!WinRePath!\WinRE.wim (
 wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
@@ -183,9 +183,12 @@ FOR /f "usebackq skip=1 tokens=1" %%d IN (`^>nul 2^>^&1 "wmic logicaldisk !CURRE
 IF "%%d"=="5" SET UNUSABLE=1
 )
 IF NOT "!UNUSABLE!"=="1" (
-MOUNTVOL !CURRENT!: /D>nul
+FOR /F "usebackq tokens=3" %%g in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (
+IF "%%g"=="No" (
 SET L!LT!=!CURRENT!
 SET /A LT-=1
+)
+)
 )
 )
 IF !LT! LEQ 0 ENDLOCAL &EXIT /b

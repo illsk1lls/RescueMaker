@@ -1,5 +1,6 @@
 # RescueMaker
 
+<img src=".resources\RescueMaker.png>
 Create and burn a simple Rescue USB with any Win10/11 host OS.<br>
 
 This can be used as a quick way to check HDD/SSD health,<br>

@@ -59,10 +59,10 @@ GOTO EXTRACT
 ENDLOCAL
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
+CALL :GETHDDTEST
 CALL :GETUNLOCKER
 CALL :GETEXPLORER
-CALL :GETHDDTEST
-CALL :GETPROCMON
+CALL :GETLAUNCHER
 CALL :SETSTARTUP
 :BURNMENU
 SET "USBDISK="&SET "EXISTS="&SET "DTYPE2="&SET "L1="&SET "L2="&SET "LASTCHECK="&DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
@@ -164,11 +164,10 @@ EXIT /b
 (ECHO Sel Dis %1&ECHO cre par pri&ECHO shrink minimum=200&ECHO format quick fs=ntfs label="RescueDisk"&ECHO assign letter=%2&ECHO Exit)>"%~dp0\RescueMaker\InitData.diskpart"
 (ECHO Sel Dis %1&ECHO cre par efi&ECHO format quick fs=fat32 label="Boot"&ECHO assign letter=%3&ECHO Exit)>"%~dp0\RescueMaker\InitBoot.diskpart"
 EXIT /b
-:SETSTARTUP
-(
-ECHO [LaunchApp]
-ECHO AppPath=%%SystemDrive%%\Windows\flex-launcher.exe
-)>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
+:GETHDDTEST
+PUSHD "%~dp0RescueMaker\Junkbin"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip -o '%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip'"
+MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul&POPD
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"
@@ -181,15 +180,20 @@ PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip -o '%~dp0RescueMaker\explorerpp_x64.zip'"
 7za.exe x -y "%~dp0RescueMaker\explorerpp_x64.zip" -o"%~dp0RescueMaker\Root\Windows">nul&POPD
 EXIT /b
-:GETHDDTEST
+:GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip -o '%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip'"
-MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul&POPD
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"
+7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q&ECHO.&POPD
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/CrystalDisk.png -o '%~dp0RescueMaker\Root\Windows\assets\CrystalDisk.png'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/Explorer%%2B%%2B.png -o '%~dp0RescueMaker\Root\Windows\assets\Explorer++.png'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/WLU.png -o '%~dp0RescueMaker\Root\Windows\assets\WLU.png'"
 EXIT /b
-:GETPROCMON
-PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.sysinternals.com/files/ProcessMonitor.zip -o '%~dp0RescueMaker\ProcMon.zip'"
-MD "%~dp0RescueMaker\Root\Program Files\ProcMon"&7za.exe x -y "%~dp0RescueMaker\ProcMon.zip" -o"%~dp0RescueMaker\Root\Program Files\ProcMon">nul&POPD
+:SETSTARTUP
+(
+ECHO [LaunchApp]
+ECHO AppPath=%%SystemDrive%%\Windows\flex-launcher.exe
+)>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
 EXIT /b
 :AVAILABLEDRIVELETTERS
 SET LT=%1&SET "L1="&SET "L2="

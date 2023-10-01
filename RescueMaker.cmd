@@ -167,14 +167,8 @@ EXIT /b
 :SETSTARTUP
 (
 ECHO [LaunchApp]
-ECHO AppPath=%%SystemDrive%%\StartUp.cmd
+ECHO AppPath=%%SystemDrive%%\Windows\flex-launcher.exe
 )>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
-(
-ECHO @ECHO OFF
-ECHO START "" "%%ProgramFiles%%\CrystalDisk\DiskInfo64.exe"
-ECHO START "" "%%SystemDrive%%\Windows\System32\WLU.exe"
-ECHO START /WAIT "" "%%SystemDrive%%\Windows\Explorer++.exe"
-)>"%~dp0RescueMaker\Root\StartUp.cmd"
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"

@@ -183,11 +183,11 @@ EXIT /b
 :GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"
-7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q&ECHO.&POPD
+7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul&POPD
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/CrystalDisk.png -o '%~dp0RescueMaker\Root\Windows\assets\CrystalDisk.png'"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/Explorer%%2B%%2B.png -o '%~dp0RescueMaker\Root\Windows\assets\Explorer++.png'"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/WLU.png -o '%~dp0RescueMaker\Root\Windows\assets\WLU.png'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/CrystalDisk.png -o '%~dp0RescueMaker\Root\Windows\assets\icons\CrystalDisk.png'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/Explorer%%2B%%2B.png -o '%~dp0RescueMaker\Root\Windows\assets\icons\Explorer++.png'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/blob/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/WLU.png -o '%~dp0RescueMaker\Root\Windows\assets\icons\WLU.png'"
 EXIT /b
 :SETSTARTUP
 (

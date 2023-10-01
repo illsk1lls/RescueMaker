@@ -184,8 +184,7 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.explorerplusplus.com
 EXIT /b
 :GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Flex-Launcher%%20Resources/icons.7z -o '%~dp0RescueMaker\icons.7z'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"; "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Flex-Launcher%%20Resources/icons.7z -o '%~dp0RescueMaker\icons.7z'"
 7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul&7za.exe x -y "%~dp0RescueMaker\icons.7z" -o"%~dp0RescueMaker\Root\Windows\assets\icons">nul&POPD
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
 EXIT /b

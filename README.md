@@ -2,7 +2,7 @@
 
 ![alt text](https://github.com/illsk1lls/RescueMaker/blob/main/.resources/RescueMaker.png?raw=true)
 
-Create and burn a simple Rescue USB with any Win10/11 host OS.<br>
+Create and burn a simple rescue USB with any Win10/11 host OS.<br>
 
 This can be used as a quick way to check HDD/SSD health,<br>
 recover files from a machine that wont boot, or reset passwords.<br>

@@ -57,6 +57,7 @@ GOTO EXTRACT
 )
 )
 ENDLOCAL
+>nul 2>&1 DEL /F "%~dp0RescueMaker\Root\Windows\System32\WallpaperHost.exe"
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETHDDTEST

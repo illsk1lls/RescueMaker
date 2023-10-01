@@ -187,7 +187,7 @@ PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Flex-Launcher%%20Resources/icons.7z -o '%~dp0RescueMaker\icons.7z'"
 7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul&7za.exe x -y "%~dp0RescueMaker\icons.7z" -o"%~dp0RescueMaker\Root\Windows\assets\icons">nul&POPD
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/f7ee53e16ac2e61c0b584ded78b23e75262a9e1b/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
 EXIT /b
 :GETWALLPAPER
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://r4.wallpaperflare.com/wallpaper/838/343/725/space-earth-landscape-eclipse-wallpaper-5900a87de11abdfb8677081f0031c6ad.jpg -o '%~dp0RescueMaker\winre.jpg'"

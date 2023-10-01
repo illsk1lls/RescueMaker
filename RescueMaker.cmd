@@ -190,7 +190,7 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMa
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
 EXIT /b
 :GETWALLPAPER
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://r4.wallpaperflare.com/wallpaper/838/343/725/space-earth-landscape-eclipse-wallpaper-5900a87de11abdfb8677081f0031c6ad.jpg -o '%~dp0RescueMaker\winre.jpg'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg -o '%~dp0RescueMaker\winre.jpg'"
 >nul 2>&1 MOVE /Y "%~dp0RescueMaker\winre.jpg" "%~dp0RescueMaker\Root\Windows\System32"
 EXIT /b
 :SETSTARTUP

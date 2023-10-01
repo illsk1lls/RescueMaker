@@ -173,7 +173,7 @@ MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMa
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Tools/WindowsLoginUnlocker/WLU.7z -o '%~dp0RescueMaker\WLU.7z'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wlu/WLU.7z -o '%~dp0RescueMaker\WLU.7z'"
 7za.exe x -y "%~dp0RescueMaker\WLU.7z" -o"%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul&POPD
 EXIT /b
@@ -184,9 +184,9 @@ POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.explorerplusplus.com
 EXIT /b
 :GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"; "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/Flex-Launcher%%20Resources/icons.7z -o '%~dp0RescueMaker\icons.7z'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"; "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/flex/icons.7z -o '%~dp0RescueMaker\icons.7z'"
 7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul&7za.exe x -y "%~dp0RescueMaker\icons.7z" -o"%~dp0RescueMaker\Root\Windows\assets\icons">nul&POPD
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/Flex-Launcher%%20Resources/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
+POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/.resources/flex/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
 EXIT /b
 :GETWALLPAPER
 POWERSHELL -nop -c "Invoke-WebRequest -Uri https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg -o '%~dp0RescueMaker\winre.jpg'"

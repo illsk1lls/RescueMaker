@@ -6,6 +6,7 @@ This can be used as a quick way to check HDD/SSD health,<br>
 recover files from a machine that wont boot, or reset passwords.<br>
 
 Credit to:<br>
+Flex-Launcher - <a href="https://github.com/complexlogic/flex-launcher">https://github.com/complexlogic/flex-launcher</a><br>
 Explorer++ - <a href="https://explorerplusplus.com">https://explorerplusplus.com</a><br>
 CrystalDiskInfo - <a href="https://crystalmark.info/en/software/crystaldiskinfo">https://crystalmark.info/en/software/crystaldiskinfo</a><br>
 WindowsLoginUnlocker - <a href="https://github.com/illsk1lls/RescueMaker/blob/main/Tools/WindowsLoginUnlocker/README.md">https://github.com/illsk1lls/RescueMaker/blob/main/Tools/WindowsLoginUnlocker/README.md</a><br>

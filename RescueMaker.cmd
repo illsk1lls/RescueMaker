@@ -64,6 +64,8 @@ ENDLOCAL
 :: Configure Rescue Disk
 ECHO.&ECHO Adding Tools...&ECHO.
 CALL :GETHDDTEST
+CALL :GETCHKDSKGUI
+CALL :GETDISMPLUS
 CALL :GETUNLOCKER
 CALL :GETEXPLORER
 CALL :GETLAUNCHER
@@ -173,6 +175,16 @@ EXIT /b
 PUSHD "%~dp0RescueMaker\Junkbin"
 BITSADMIN /transfer "CrystalDisk" /download /priority FOREGROUND "https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip" "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip"
 MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul&POPD
+EXIT /b
+:GETCHKDSKGUI
+PUSHD "%~dp0RescueMaker\Junkbin"
+BITSADMIN /transfer "ChkDsk-GUI" /download /priority FOREGROUND "https://github.com/illsk1lls/RescueMaker/raw/main/.resources/cgui/cgui.7z" "%~dp0RescueMaker\cgui.7z"
+MD "%~dp0RescueMaker\Root\Program Files\ChkDskGUI"&7za.exe x -y "%~dp0RescueMaker\cgui.7z" -o"%~dp0RescueMaker\Root\Program Files\ChkDskGUI">nul&POPD
+EXIT /b
+:GETDISMPLUS
+PUSHD "%~dp0RescueMaker\Junkbin"
+BITSADMIN /transfer "DISM++" /download /priority FOREGROUND "https://github.com/Chuyu-Team/Dism-Multi-language/releases/download/v10.1.1002.2/Dism++10.1.1002.1B.zip" "%~dp0RescueMaker\Dism++10.1.1002.1B.zip"
+MD "%~dp0RescueMaker\Root\Program Files\DISM++"&7za.exe x -y "%~dp0RescueMaker\Dism++10.1.1002.1B.zip" -o"%~dp0RescueMaker\Root\Program Files\DISM++">nul&POPD
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"

@@ -27,13 +27,10 @@ MD "%~dp0RescueMaker\Root">nul
 :: Get 7-Zip - Wimlib-ImageX - SetACL
 CLS&ECHO.&ECHO Getting Utilities...
 PUSHD "%~dp0RescueMaker"&PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "7z-Standalone" /download /priority FOREGROUND "https://www.7-zip.org/a/7zr.exe" "%~dp0RescueMaker\Junkbin\7zr.exe"
-BITSADMIN /transfer "7z-Extra" /download /priority FOREGROUND "https://www.7-zip.org/a/7z2300-extra.7z" "%~dp0RescueMaker\Junkbin\7zExtra.7z"
-BITSADMIN /transfer "Wimlib-Imagex" /download /priority FOREGROUND "https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip" "%~dp0RescueMaker\Junkbin\wimlib.zip"
-BITSADMIN /transfer "SetACL" /download /priority FOREGROUND "https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20(executable%%20version).zip" "%~dp0RescueMaker\Junkbin\SetACL.zip"
+POWERSHELL -nop -c "iwr -uri https://www.7-zip.org/a/7zr.exe -o '%~dp0RescueMaker\Junkbin\7zr.exe'"; "iwr -uri https://www.7-zip.org/a/7z2300-extra.7z -o '%~dp0RescueMaker\Junkbin\7zExtra.7z'"; "iwr -uri https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -o '%~dp0RescueMaker\Junkbin\wimlib.zip'"; "iwr -uri https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -o '%~dp0RescueMaker\Junkbin\SetACL.zip'"
 7zr.exe e -y 7zExtra.7z>nul&7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul&7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul&7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul&POPD
 :: Find a recovery partition
-CLS&ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
+ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :AVAILABLEDRIVELETTERS 1
@@ -173,39 +170,38 @@ EXIT /b
 EXIT /b
 :GETHDDTEST
 PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "CrystalDisk" /download /priority FOREGROUND "https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip" "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip"
+POWERSHELL -nop -c "iwr -uri https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip -o '%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip'"
 MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul&POPD
 EXIT /b
 :GETCHKDSKGUI
 PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "ChkDsk-GUI" /download /priority FOREGROUND "https://github.com/illsk1lls/RescueMaker/raw/main/.resources/cgui/cgui.7z" "%~dp0RescueMaker\cgui.7z"
+POWERSHELL -nop -c "iwr -uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/cgui/cgui.7z -o '%~dp0RescueMaker\cgui.7z'"
 MD "%~dp0RescueMaker\Root\Program Files\ChkDskGUI"&7za.exe x -y "%~dp0RescueMaker\cgui.7z" -o"%~dp0RescueMaker\Root\Program Files\ChkDskGUI">nul&POPD
 EXIT /b
 :GETDISMPLUS
 PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "DISM++" /download /priority FOREGROUND "https://github.com/Chuyu-Team/Dism-Multi-language/releases/download/v10.1.1002.2/Dism++10.1.1002.1B.zip" "%~dp0RescueMaker\Dism++10.1.1002.1B.zip"
+POWERSHELL -nop -c "iwr -uri https://github.com/Chuyu-Team/Dism-Multi-language/releases/download/v10.1.1002.2/Dism++10.1.1002.1B.zip -o '%~dp0RescueMaker\Dism++10.1.1002.1B.zip'"
 MD "%~dp0RescueMaker\Root\Program Files\DISM++"&7za.exe x -y "%~dp0RescueMaker\Dism++10.1.1002.1B.zip" -o"%~dp0RescueMaker\Root\Program Files\DISM++">nul&POPD
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "LoginUnlocker" /download /priority FOREGROUND "https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wlu/WLU.7z" "%~dp0RescueMaker\WLU.7z"
+POWERSHELL -nop -c "iwr -uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wlu/WLU.7z -o '%~dp0RescueMaker\WLU.7z'"
 7za.exe x -y "%~dp0RescueMaker\WLU.7z" -o"%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul&POPD
 EXIT /b
 :GETEXPLORER
 PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "Explorer++" /download /priority FOREGROUND "https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip" "%~dp0RescueMaker\explorerpp_x64.zip"
+POWERSHELL -nop -c "iwr -uri https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip -o '%~dp0RescueMaker\explorerpp_x64.zip'"
 7za.exe x -y "%~dp0RescueMaker\explorerpp_x64.zip" -o"%~dp0RescueMaker\Root\Windows">nul&POPD
 EXIT /b
 :GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
-BITSADMIN /transfer "Flex-Launcher" /download /priority FOREGROUND "https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip" "%~dp0RescueMaker\flex-launcher-2.1-win64.zip"
-BITSADMIN /transfer "Flex-Launcher-Icn" /download /priority FOREGROUND "https://github.com/illsk1lls/RescueMaker/raw/main/.resources/flex/icons.7z" "%~dp0RescueMaker\icons.7z"
+POWERSHELL -nop -c "iwr -uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"; "iwr -uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/flex/icons.7z -o '%~dp0RescueMaker\icons.7z'"
 7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul&7za.exe x -y "%~dp0RescueMaker\icons.7z" -o"%~dp0RescueMaker\Root\Windows\assets\icons">nul&POPD
-BITSADMIN /transfer "Flex-Launcher-Cfg" /download /priority FOREGROUND "https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/.resources/flex/config.ini" "%~dp0RescueMaker\Root\Windows\config.ini"
+POWERSHELL -nop -c "iwr -uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/.resources/flex/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
 EXIT /b
 :GETWALLPAPER
-BITSADMIN /transfer "Wallpaper" /download /priority FOREGROUND "https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg" "%~dp0RescueMaker\winre.jpg"
+POWERSHELL -nop -c "iwr -uri https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg -o '%~dp0RescueMaker\winre.jpg'"
 >nul 2>&1 MOVE /Y "%~dp0RescueMaker\winre.jpg" "%~dp0RescueMaker\Root\Windows\System32"
 EXIT /b
 :SETSTARTUP

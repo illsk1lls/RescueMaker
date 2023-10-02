@@ -27,10 +27,13 @@ MD "%~dp0RescueMaker\Root">nul
 :: Get 7-Zip - Wimlib-ImageX - SetACL
 CLS&ECHO.&ECHO Getting Utilities...
 PUSHD "%~dp0RescueMaker"&PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://www.7-zip.org/a/7zr.exe -o '7zr.exe'"; "Invoke-WebRequest -Uri https://www.7-zip.org/a/7z2300-extra.7z -o '7zExtra.7z'"; "Invoke-WebRequest -Uri https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -o 'wimlib.zip'"; "Invoke-WebRequest -Uri https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -o 'SetACL.zip'"
+BITSADMIN /transfer "7z-Standalone" /download /priority FOREGROUND "https://www.7-zip.org/a/7zr.exe" "%~dp0RescueMaker\Junkbin\7zr.exe"
+BITSADMIN /transfer "7z-Extra" /download /priority FOREGROUND "https://www.7-zip.org/a/7z2300-extra.7z" "%~dp0RescueMaker\Junkbin\7zExtra.7z"
+BITSADMIN /transfer "Wimlib-Imagex" /download /priority FOREGROUND "https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip" "%~dp0RescueMaker\Junkbin\wimlib.zip"
+BITSADMIN /transfer "SetACL" /download /priority FOREGROUND "https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20(executable%%20version).zip" "%~dp0RescueMaker\Junkbin\SetACL.zip"
 7zr.exe e -y 7zExtra.7z>nul&7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul&7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul&7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul&POPD
 :: Find a recovery partition
-ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
+CLS&ECHO.&ECHO Creating Rescue Media from HostOS...&ECHO.&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
 FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :AVAILABLEDRIVELETTERS 1
@@ -69,10 +72,10 @@ CALL :SETSTARTUP
 :BURNMENU
 SET "USBDISK="&SET "EXISTS="&SET "DTYPE2="&SET "L1="&SET "L2="&SET "LASTCHECK="&DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
 CLS
-ECHO Create Rescue Media (USB Devices only)
+ECHO Loading DISKs...               ^(Target must be USB^)
 ECHO ===================================================
 CALL :LISTDISKS
-ECHO Press ENTER to refresh disk list&ECHO.
+ECHO Press ENTER to refresh&ECHO.
 SET /P USBDISK="Enter the USB DISK # you would like to use (X to Exit): "
 IF "%USBDISK%"=="" GOTO BURNMENU
 IF "%USBDISK%"=="x" SET "USBDISK=X"
@@ -168,28 +171,29 @@ EXIT /b
 EXIT /b
 :GETHDDTEST
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip -o '%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip'"
+BITSADMIN /transfer "CrystalDisk" /download /priority FOREGROUND "https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip" "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip"
 MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"&7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul&POPD
 EXIT /b
 :GETUNLOCKER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wlu/WLU.7z -o '%~dp0RescueMaker\WLU.7z'"
+BITSADMIN /transfer "LoginUnlocker" /download /priority FOREGROUND "https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wlu/WLU.7z" "%~dp0RescueMaker\WLU.7z"
 7za.exe x -y "%~dp0RescueMaker\WLU.7z" -o"%~dp0RescueMaker\Root\Windows\System32">nul
 COPY /Y "%SystemDrive%\Windows\System32\offreg.dll" "%~dp0RescueMaker\Root\Windows\System32">nul&POPD
 EXIT /b
 :GETEXPLORER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip -o '%~dp0RescueMaker\explorerpp_x64.zip'"
+BITSADMIN /transfer "Explorer++" /download /priority FOREGROUND "https://download.explorerplusplus.com/beta/1.4.0-beta-2/explorerpp_x64.zip" "%~dp0RescueMaker\explorerpp_x64.zip"
 7za.exe x -y "%~dp0RescueMaker\explorerpp_x64.zip" -o"%~dp0RescueMaker\Root\Windows">nul&POPD
 EXIT /b
 :GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -o '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"; "Invoke-WebRequest -Uri https://github.com/illsk1lls/RescueMaker/raw/main/.resources/flex/icons.7z -o '%~dp0RescueMaker\icons.7z'"
+BITSADMIN /transfer "Flex-Launcher" /download /priority FOREGROUND "https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip" "%~dp0RescueMaker\flex-launcher-2.1-win64.zip"
+BITSADMIN /transfer "Flex-Launcher-Icn" /download /priority FOREGROUND "https://github.com/illsk1lls/RescueMaker/raw/main/.resources/flex/icons.7z" "%~dp0RescueMaker\icons.7z"
 7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul&XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul&7za.exe x -y "%~dp0RescueMaker\icons.7z" -o"%~dp0RescueMaker\Root\Windows\assets\icons">nul&POPD
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/.resources/flex/config.ini -o '%~dp0RescueMaker\Root\Windows\config.ini'"
+BITSADMIN /transfer "Flex-Launcher-Cfg" /download /priority FOREGROUND "https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/.resources/flex/config.ini" "%~dp0RescueMaker\Root\Windows\config.ini"
 EXIT /b
 :GETWALLPAPER
-POWERSHELL -nop -c "Invoke-WebRequest -Uri https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg -o '%~dp0RescueMaker\winre.jpg'"
+BITSADMIN /transfer "Wallpaper" /download /priority FOREGROUND "https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg" "%~dp0RescueMaker\winre.jpg"
 >nul 2>&1 MOVE /Y "%~dp0RescueMaker\winre.jpg" "%~dp0RescueMaker\Root\Windows\System32"
 EXIT /b
 :SETSTARTUP

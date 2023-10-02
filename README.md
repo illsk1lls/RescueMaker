@@ -4,8 +4,8 @@
 
 Create and burn a simple rescue USB with any Win10/11 host OS.<br>
 
-This can be used as a quick way to check HDD/SSD health, add/remove drivers,<br>
-recover files from a machine that wont boot, or reset passwords when locked out.<br>
+When you can't get into your machine, this can be used as a quick way to check HDD/SSD health, 
+add/remove drivers, recover files, or reset passwords.<br>
 
 Credit to:<br>
 Flex-Launcher - <a href="https://github.com/complexlogic/flex-launcher">https://github.com/complexlogic/flex-launcher</a><br>

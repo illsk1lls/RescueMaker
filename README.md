@@ -9,7 +9,9 @@ recover files from a machine that wont boot, or reset passwords.<br>
 
 Credit to:<br>
 Flex-Launcher - <a href="https://github.com/complexlogic/flex-launcher">https://github.com/complexlogic/flex-launcher</a><br>
+DISM++ - <a href="https://github.com/Chuyu-Team/Dism-Multi-language/releases">https://github.com/Chuyu-Team/Dism-Multi-language/releases</a><br>
 Explorer++ - <a href="https://explorerplusplus.com">https://explorerplusplus.com</a><br>
+ChkDsk GUI - Chris Hall 06' ;)<br>
 CrystalDiskInfo - <a href="https://crystalmark.info/en/software/crystaldiskinfo">https://crystalmark.info/en/software/crystaldiskinfo</a><br>
 WindowsLoginUnlocker - <a href="https://github.com/illsk1lls/RescueMaker/blob/main/Tools/WindowsLoginUnlocker/README.md">https://github.com/illsk1lls/RescueMaker/blob/main/Tools/WindowsLoginUnlocker/README.md</a><br>
 Wimlib-Imagex - <a href="https://wimlib.net">https://wimlib.net</a><br>

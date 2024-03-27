@@ -104,7 +104,7 @@ CALL :AVAILABLEDRIVELETTERS 2
 >nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2!"
 >nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size $MaxSize -driveletter !L1!"
 >nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L2! -FileSystem FAT32 -Force -NewFileSystemLabel BOOTFILES"
->nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel WinPEData"
+>nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel RescueDisk"
 ECHO Copying files to USB, Please Wait... ^(This may take a few minutes^)&ECHO/
 XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y /Z /G /Q&ECHO/
 BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast

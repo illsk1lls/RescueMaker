@@ -4,21 +4,20 @@ SET "TitleName=RescueMaker"
 TASKLIST /V /NH /FI "imagename eq cmd.exe"|FIND /I /C "%TitleName%">nul
 IF NOT %errorlevel%==1 POWERSHELL -nop -c "$^={$Notify=[PowerShell]::Create().AddScript({$Audio=New-Object System.Media.SoundPlayer;$Audio.SoundLocation=$env:WinDir + '\Media\Windows Notify System Generic.wav';$Audio.playsync()});$rs=[RunspaceFactory]::CreateRunspace();$rs.ApartmentState="^""STA"^"";$rs.ThreadOptions="^""ReuseThread"^"";$rs.Open();$Notify.Runspace=$rs;$Notify.BeginInvoke()};&$^;$PopUp=New-Object -ComObject Wscript.Shell;$PopUp.Popup("^""RescueMaker is already open!"^"",0,'ERROR:',0x10)">nul&EXIT
 TITLE %TitleName%
-REM Ask for Admin rights
->nul 2>&1 reg add hkcu\software\classes\.RescueMaker\shell\runas\command /f /ve /d "cmd /x /d /r set \"f0=%%2\"& call \"%%2\" %%3"& set _= %*
->nul 2>&1 fltmc|| if "%f0%" neq "%~f0" (cd.>"%ProgramData%\runas.RescueMaker" & start "%~n0" /high "%ProgramData%\runas.RescueMaker" "%~f0" "%_:"=""%" & exit /b)
->nul 2>&1 reg delete hkcu\software\classes\.RescueMaker\ /f &>nul 2>&1 del %ProgramData%\runas.RescueMaker /f /q
 REM Check system - Win11/10 Supported - Both show up as 10
 FOR /F "usebackq skip=2 tokens=3-4" %%i IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName 2^>nul`) DO IF NOT "%%i %%j"=="Windows 10" ECHO/ & ECHO Unsupported system detected. & ECHO/ & PAUSE & EXIT
-REM Copy self to %ProgramData% and run from there
-CD /D %~dp0
-IF NOT "%~f0" EQU "%ProgramData%\%~nx0" (
-COPY /Y "%~f0" "%ProgramData%">nul
-START "" "%ProgramData%\%~nx0" %*
+REM Run as Admin, set terminal type, copy self to %ProgramData% and run from there
+>nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
+IF /I NOT "%~dp0" == "%ProgramData%\" (
+CD.>"%ProgramData%\launcher.RescueMaker"
+>nul 2>&1 COPY /Y "%~f0" "%ProgramData%"
+CALL :SETTERMINAL
+>nul 2>&1 FLTMC && (TITLE Re-Launching...&START "" "%ProgramData%\launcher.RescueMaker" "%ProgramData%\%~nx0") || IF NOT "%f0%"=="1" (TITLE Re-Launching...&START "" /high "%ProgramData%\launcher.RescueMaker" "%ProgramData%\%~nx0"&CALL :RESTORETERMINAL&EXIT /b)
+CALL :RESTORETERMINAL
 EXIT /b
 )
 REM Center window
->nul 2>&1 POWERSHELL -nop -ep Bypass -c "$w=Add-Type -Name WAPI -PassThru -MemberDefinition '[DllImport(\"user32.dll\")]public static extern void SetProcessDPIAware();[DllImport(\"shcore.dll\")]public static extern void SetProcessDpiAwareness(int value);[DllImport(\"kernel32.dll\")]public static extern IntPtr GetConsoleWindow();[DllImport(\"user32.dll\")]public static extern void GetWindowRect(IntPtr hwnd, int[] rect);[DllImport(\"user32.dll\")]public static extern void GetClientRect(IntPtr hwnd, int[] rect);[DllImport(\"user32.dll\")]public static extern void GetMonitorInfoW(IntPtr hMonitor, int[] lpmi);[DllImport(\"user32.dll\")]public static extern IntPtr MonitorFromWindow(IntPtr hwnd, int dwFlags);[DllImport(\"user32.dll\")]public static extern int SetWindowPos(IntPtr hwnd, IntPtr hwndAfterZ, int x, int y, int w, int h, int flags);';$PROCESS_PER_MONITOR_DPI_AWARE=2;try {$w::SetProcessDpiAwareness($PROCESS_PER_MONITOR_DPI_AWARE)} catch {$w::SetProcessDPIAware()}$hwnd=$w::GetConsoleWindow();$moninf=[int[]]::new(10);$moninf[0]=40;$MONITOR_DEFAULTTONEAREST=2;$w::GetMonitorInfoW($w::MonitorFromWindow($hwnd, $MONITOR_DEFAULTTONEAREST), $moninf);$monwidth=$moninf[7] - $moninf[5];$monheight=$moninf[8] - $moninf[6];$wrect=[int[]]::new(4);$w::GetWindowRect($hwnd, $wrect);$winwidth=$wrect[2] - $wrect[0];$winheight=$wrect[3] - $wrect[1];$x=[int][math]::Round($moninf[5] + $monwidth / 2 - $winwidth / 2);$y=[int][math]::Round($moninf[6] + $monheight / 2 - $winheight / 2);$SWP_NOSIZE=0x0001;$SWP_NOZORDER=0x0004;exit [int]($w::SetWindowPos($hwnd, [IntPtr]::Zero, $x, $y, 0, 0, $SWP_NOSIZE -bOr $SWP_NOZORDER) -eq 0)"
+>nul 2>&1 POWERSHELL -nop -c "$w=Add-Type -Name WAPI -PassThru -MemberDefinition '[DllImport(\"user32.dll\")]public static extern void SetProcessDPIAware();[DllImport(\"shcore.dll\")]public static extern void SetProcessDpiAwareness(int value);[DllImport(\"kernel32.dll\")]public static extern IntPtr GetConsoleWindow();[DllImport(\"user32.dll\")]public static extern void GetWindowRect(IntPtr hwnd, int[] rect);[DllImport(\"user32.dll\")]public static extern void GetClientRect(IntPtr hwnd, int[] rect);[DllImport(\"user32.dll\")]public static extern void GetMonitorInfoW(IntPtr hMonitor, int[] lpmi);[DllImport(\"user32.dll\")]public static extern IntPtr MonitorFromWindow(IntPtr hwnd, int dwFlags);[DllImport(\"user32.dll\")]public static extern int SetWindowPos(IntPtr hwnd, IntPtr hwndAfterZ, int x, int y, int w, int h, int flags);';$PROCESS_PER_MONITOR_DPI_AWARE=2;try {$w::SetProcessDpiAwareness($PROCESS_PER_MONITOR_DPI_AWARE)} catch {$w::SetProcessDPIAware()}$hwnd=$w::GetConsoleWindow();$moninf=[int[]]::new(10);$moninf[0]=40;$MONITOR_DEFAULTTONEAREST=2;$w::GetMonitorInfoW($w::MonitorFromWindow($hwnd, $MONITOR_DEFAULTTONEAREST), $moninf);$monwidth=$moninf[7] - $moninf[5];$monheight=$moninf[8] - $moninf[6];$wrect=[int[]]::new(4);$w::GetWindowRect($hwnd, $wrect);$winwidth=$wrect[2] - $wrect[0];$winheight=$wrect[3] - $wrect[1];$x=[int][math]::Round($moninf[5] + $monwidth / 2 - $winwidth / 2);$y=[int][math]::Round($moninf[6] + $monheight / 2 - $winheight / 2);$SWP_NOSIZE=0x0001;$SWP_NOZORDER=0x0004;exit [int]($w::SetWindowPos($hwnd, [IntPtr]::Zero, $x, $y, 0, 0, $SWP_NOSIZE -bOr $SWP_NOZORDER) -eq 0)"
 REM Create cache folders
 ECHO/&ECHO Getting Ready...
 IF EXIST "%~dp0RescueMaker" RD "%~dp0RescueMaker" /S /Q>nul
@@ -91,7 +90,12 @@ IF NOT "!DTYPE2!"=="USB" DEL "%~dp0RescueMaker\currentdisk.diskpart" /F /Q>nul&S
 CALL :VERIFYDELETE %USBDISK% LASTCHECK
 IF "!LASTCHECK!"=="N" GOTO BURNMENU
 CALL :AVAILABLEDRIVELETTERS 2
->nul 2>&1 POWERSHELL -nop -c "clear-disk -number %USBDISK% -RemoveData -RemoveOEM -Confirm:$false";"Initialize-Disk -Number %USBDISK% -PartitionStyle MBR";"new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2!";"new-partition -disknumber %USBDISK% -size $MaxSize -driveletter !L1!";"Format-Volume -DriveLetter !L2! -FileSystem FAT32 -Force -NewFileSystemLabel BOOTFILES";"Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel WinPEData"
+>nul 2>&1 POWERSHELL -nop -c "clear-disk -number %USBDISK% -RemoveData -RemoveOEM -Confirm:$false"
+>nul 2>&1 POWERSHELL -nop -c "Initialize-Disk -Number %USBDISK% -PartitionStyle MBR"
+>nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2!"
+>nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size $MaxSize -driveletter !L1!"
+>nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L2! -FileSystem FAT32 -Force -NewFileSystemLabel BOOTFILES"
+>nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel WinPEData"
 ECHO Copying files to USB, Please Wait... ^(This may take a few minutes^)&ECHO/
 XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y /Z /G /Q&ECHO/
 BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast
@@ -246,4 +250,43 @@ SET /A RT+=1
 )
 IF !RT! GEQ 2 ENDLOCAL &EXIT /b
 )
+EXIT /b
+
+:SETTERMINAL
+SET "LEGACY={B23D10C0-E52E-411E-9D5B-C09FDF709C7D}"
+SET "TERMINAL={2EACA947-7F5F-4CFA-BA87-8F7FBEEFBE69}"
+SET "TERMINAL2={E12CFF52-A866-4C77-9A90-F570A7AA2C6B}"
+POWERSHELL -nop -c "Get-WmiObject -Class Win32_OperatingSystem | Select -ExpandProperty Caption | Find 'Windows 11'">nul && (
+SET isEleven=1
+FOR /F "usebackq tokens=3" %%# IN (`REG QUERY "HKCU\Console\%%%%Startup" /v DelegationConsole 2^>nul`) DO (
+IF NOT "%%#"=="%LEGACY%" (
+SET "DEFAULTCONSOLE=%%#"
+REG ADD "HKCU\Console\%%%%Startup" /v DelegationConsole /t REG_SZ /d "%LEGACY%" /f>nul
+REG ADD "HKCU\Console\%%%%Startup" /v DelegationTerminal /t REG_SZ /d "%LEGACY%" /f>nul
+)
+)
+)
+FOR /F "usebackq tokens=3" %%# IN (`REG QUERY "HKCU\Console" /v ForceV2 2^>nul`) DO (
+IF NOT "%%#"=="0x1" (
+SET LEGACYTERM=0
+REG ADD "HKCU\Console" /v ForceV2 /t REG_DWORD /d 1 /f>nul
+) ELSE (
+SET LEGACYTERM=1
+)
+)
+EXIT /b
+
+:RESTORETERMINAL
+IF "%isEleven%"=="1" (
+IF DEFINED DEFAULTCONSOLE (
+IF "%DEFAULTCONSOLE%"=="%TERMINAL%" (
+REG ADD "HKCU\Console\%%%%Startup" /v DelegationConsole /t REG_SZ /d "%TERMINAL%" /f>nul
+REG ADD "HKCU\Console\%%%%Startup" /v DelegationTerminal /t REG_SZ /d "%TERMINAL2%" /f>nul
+) ELSE (
+REG ADD "HKCU\Console\%%%%Startup" /v DelegationConsole /t REG_SZ /d "%DEFAULTCONSOLE%" /f>nul
+REG ADD "HKCU\Console\%%%%Startup" /v DelegationTerminal /t REG_SZ /d "%DEFAULTCONSOLE%" /f>nul
+)
+)
+)
+IF "%LEGACYTERM%"=="0" REG ADD "HKCU\Console" /v ForceV2 /t REG_DWORD /d 0 /f>nul
 EXIT /b

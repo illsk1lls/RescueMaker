@@ -12,8 +12,17 @@ IF /I NOT "%~dp0" == "%ProgramData%\" (
 CD.>"%ProgramData%\launcher.RescueMaker"
 >nul 2>&1 COPY /Y "%~f0" "%ProgramData%"
 CALL :SETTERMINAL
->nul 2>&1 FLTMC && (TITLE Re-Launching...&START "" "%ProgramData%\launcher.RescueMaker" "%ProgramData%\%~nx0") || IF NOT "%f0%"=="1" (TITLE Re-Launching...&START "" /high "%ProgramData%\launcher.RescueMaker" "%ProgramData%\%~nx0"&CALL :RESTORETERMINAL&EXIT /b)
+>nul 2>&1 FLTMC && (TITLE Re-Launching...&START "" "%ProgramData%\launcher.RescueMaker" "%ProgramData%\%~nx0") || IF NOT "%f0%"=="1" (
+TITLE Re-Launching...
+START "" /high "%ProgramData%\launcher.RescueMaker" "%ProgramData%\%~nx0"
 CALL :RESTORETERMINAL
+>nul 2>&1 REG DELETE HKCU\Software\classes\.RescueMaker\ /F
+>nul 2>&1 DEL "%ProgramData%\launcher.RescueMaker" /F /Q
+EXIT /b
+)
+CALL :RESTORETERMINAL
+>nul 2>&1 REG DELETE HKCU\Software\classes\.RescueMaker\ /F
+>nul 2>&1 DEL "%ProgramData%\launcher.RescueMaker" /F /Q
 EXIT /b
 )
 REM Center window

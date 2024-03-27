@@ -91,7 +91,7 @@ IF NOT "!DTYPE2!"=="USB" DEL "%~dp0RescueMaker\currentdisk.diskpart" /F /Q>nul&S
 CALL :VERIFYDELETE %USBDISK% LASTCHECK
 IF "!LASTCHECK!"=="N" GOTO BURNMENU
 CALL :AVAILABLEDRIVELETTERS 2
->nul 2>&1 POWERSHELL -nop -c "clear-disk -number %USBDISK% -RemoveData -RemoveOEM -Confirm:$false;Initialize-Disk -Number %USBDISK% -PartitionStyle MBR;new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2!;new-partition -disknumber %USBDISK% -size $MaxSize -driveletter !L1!;Format-Volume -DriveLetter !L2! -FileSystem FAT32 -Force -NewFileSystemLabel BOOTFILES;Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel WinPEData"
+>nul 2>&1 POWERSHELL -nop -c "clear-disk -number %USBDISK% -RemoveData -RemoveOEM -Confirm:$false";"Initialize-Disk -Number %USBDISK% -PartitionStyle MBR";"new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2!";"new-partition -disknumber %USBDISK% -size $MaxSize -driveletter !L1!";"Format-Volume -DriveLetter !L2! -FileSystem FAT32 -Force -NewFileSystemLabel BOOTFILES";"Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel WinPEData"
 ECHO Copying files to USB, Please Wait... ^(This may take a few minutes^)&ECHO/
 XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y /Z /G /Q&ECHO/
 BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast

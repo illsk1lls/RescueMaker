@@ -5,7 +5,7 @@ TASKLIST /V /NH /FI "imagename eq cmd.exe"|FIND /I /C "%TitleName%">nul
 IF NOT %errorlevel%==1 POWERSHELL -nop -c "$^={$Notify=[PowerShell]::Create().AddScript({$Audio=New-Object System.Media.SoundPlayer;$Audio.SoundLocation=$env:WinDir + '\Media\Windows Notify System Generic.wav';$Audio.playsync()});$rs=[RunspaceFactory]::CreateRunspace();$rs.ApartmentState="^""STA"^"";$rs.ThreadOptions="^""ReuseThread"^"";$rs.Open();$Notify.Runspace=$rs;$Notify.BeginInvoke()};&$^;$PopUp=New-Object -ComObject Wscript.Shell;$PopUp.Popup("^""RescueMaker is already open!"^"",0,'ERROR:',0x10)">nul&EXIT
 TITLE %TitleName%
 REM Check system - Win11/10 Supported - Both show up as 10
-FOR /F "usebackq skip=2 tokens=3-4" %%i IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName 2^>nul`) DO IF NOT "%%i %%j"=="Windows 10" ECHO/ & ECHO Unsupported system detected. & ECHO/ & PAUSE & EXIT
+FOR /F "usebackq skip=2 tokens=3-4" %%# IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName 2^>nul`) DO IF NOT "%%# %%$"=="Windows 10" ECHO/ & ECHO Unsupported system detected. & ECHO/ & PAUSE & EXIT
 REM Run as Admin, set terminal type, copy self to %ProgramData% and run from there
 >nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
 IF /I NOT "%~dp0" == "%ProgramData%\" (
@@ -39,10 +39,10 @@ POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://www.
 7zr.exe e -y 7zExtra.7z>nul&7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul&7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul&7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul&POPD
 REM Find a recovery partition
 ECHO/&ECHO Creating Rescue Media from HostOS...&ECHO/&SET "NOUNMOUNT="&SET "WinRePath=Recovery\WindowsRE"
-FOR /F "usebackq delims=" %%a in (`mountvol^|find "\\"`) do (
+FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
 SETLOCAL ENABLEDELAYEDEXPANSION
 CALL :AVAILABLEDRIVELETTERS 1
-MOUNTVOL !L1!: %%a>nul
+MOUNTVOL !L1!: %%#>nul
 
 :EXTRACT
 IF EXIST !L1!:\!WinRePath!\WinRE.wim (
@@ -131,15 +131,15 @@ DEL "%~dp0RescueMaker\list.diskpart" /F /Q&ECHO/
 EXIT /b
 
 :GETDISKNAME
-FOR /F "usebackq skip=7 delims=" %%a in (`DISKPART /S "%~dp0RescueMaker\currentdisk.diskpart"`) DO (
-SET "%1=%%a"
+FOR /F "usebackq skip=7 delims=" %%# in (`DISKPART /S "%~dp0RescueMaker\currentdisk.diskpart"`) DO (
+SET "%1=%%#"
 EXIT /B
 )
 EXIT /b
 
 :GETDISKTYPE
-FOR /F "usebackq tokens=3" %%a in (`DISKPART /S "%~dp0RescueMaker\currentdisk.diskpart" ^| FIND "Type"`) DO (
-SET "%1=%%a"
+FOR /F "usebackq tokens=3" %%# in (`DISKPART /S "%~dp0RescueMaker\currentdisk.diskpart" ^| FIND "Type"`) DO (
+SET "%1=%%#"
 EXIT /b
 )
 EXIT /b
@@ -219,14 +219,14 @@ EXIT /b
 
 :AVAILABLEDRIVELETTERS
 SET LT=%1&SET "L1="&SET "L2="
-FOR %%a IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
-SET CURRENT=%%a
+FOR %%# IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+SET CURRENT=%%#
 IF NOT EXIST !CURRENT!:\* (
 SET UNUSABLE=0
-FOR /F "usebackq tokens=3" %%d in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (IF /I "%%d"=="CD-ROM" SET UNUSABLE=1)
+FOR /F "usebackq tokens=3" %%# in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (IF /I "%%#"=="CD-ROM" SET UNUSABLE=1)
 IF NOT "!UNUSABLE!"=="1" (
-FOR /F "usebackq tokens=3" %%g in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (
-IF /I "%%g"=="No" (
+FOR /F "usebackq tokens=3" %%# in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (
+IF /I "%%#"=="No" (
 SET L!LT!=!CURRENT!
 SET /A LT-=1
 )
@@ -244,16 +244,16 @@ EXIT /b
 
 :FINDRE
 SET "RT=1"&SET "R1="
-FOR %%a IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
-IF EXIST %%a:\Recovery\WindowsRE\WinRE.wim (
+FOR %%# IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
+IF EXIST %%#:\Recovery\WindowsRE\WinRE.wim (
 SET NOUNMOUNT=1
-SET R!RT!=%%a
+SET R!RT!=%%#
 SET /A RT+=1
 )
-IF EXIST %%a:\Windows\System32\Recovery\WinRE.wim (
+IF EXIST %%#:\Windows\System32\Recovery\WinRE.wim (
 SET "WinRePath=Windows\System32\Recovery"
 SET NOUNMOUNT=1
-SET R!RT!=%%a
+SET R!RT!=%%#
 SET /A RT+=1
 )
 IF !RT! GEQ 2 ENDLOCAL &EXIT /b

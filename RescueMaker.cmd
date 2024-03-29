@@ -88,8 +88,7 @@ CALL :LISTDISKS
 ECHO Press ENTER to refresh&ECHO/
 SET /P USBDISK="Enter the USB DISK # you would like to use (X to Exit): "
 IF "%USBDISK%"=="" GOTO BURNMENU
-IF "%USBDISK%"=="x" SET "USBDISK=X"
-IF "%USBDISK%"=="X" ECHO/&ECHO Aborting media creation and cleaning up cache folders...&ECHO/&GOTO CLEANUPANDEXIT
+IF /I "%USBDISK%"=="X" ECHO/&ECHO Aborting media creation and cleaning up cache folders...&ECHO/&GOTO CLEANUPANDEXIT
 CALL :DISKEXIST %USBDISK% EXISTS
 IF %EXISTS%==1 ECHO/&ECHO Disk %USBDISK% doesn't exist! &ECHO/&PAUSE&GOTO BURNMENU
 CALL :CHECKDISK %USBDISK%

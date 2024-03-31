@@ -206,7 +206,7 @@ POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://raw.
 EXIT /b
 
 :GETWALLPAPER
-POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://r4.wallpaperflare.com/wallpaper/397/910/402/windows-10-abstract-gmunk-wallpaper-9499231339a5898b56586750db92e9dd.jpg -Destination '%~dp0RescueMaker\winre.jpg'"
+POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wallpaper.jpg -Destination '%~dp0RescueMaker\winre.jpg'"
 >nul 2>&1 MOVE /Y "%~dp0RescueMaker\winre.jpg" "%~dp0RescueMaker\Root\Windows\System32"
 EXIT /b
 

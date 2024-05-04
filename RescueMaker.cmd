@@ -7,8 +7,8 @@ TITLE %TitleName%
 REM Check system - Win11/10 Supported - Both show up as 10
 FOR /F "usebackq skip=2 tokens=3-4" %%# IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName 2^>nul`) DO IF NOT "%%# %%$"=="Windows 10" ECHO/ & ECHO Unsupported system detected. & ECHO/ & PAUSE & EXIT
 REM Run as Admin, set terminal type, copy self to %ProgramData% and run from there
->nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
 IF /I NOT "%~dp0" == "%ProgramData%\" (
+>nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
 CD.>"%ProgramData%\launcher.RescueMaker"
 >nul 2>&1 COPY /Y "%~f0" "%ProgramData%"
 CALL :SETTERMINAL

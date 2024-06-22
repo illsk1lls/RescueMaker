@@ -257,9 +257,9 @@ EXIT /b
 
 :GETHDDTEST
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Start-BitsTransfer -Dynamic -Priority Foreground -Source https://newcontinuum.dl.sourceforge.net/project/crystaldiskinfo/9.1.1/CrystalDiskInfo9_1_1.zip -Destination '%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip'"
+POWERSHELL -nop -c "Start-BitsTransfer -Dynamic -Priority Foreground -Source https://versaweb.dl.sourceforge.net/project/crystaldiskinfo/9.3.1/CrystalDiskInfo9_3_1.zip -Destination '%~dp0RescueMaker\CrystalDiskInfo9_3_1.zip'"
 MD "%~dp0RescueMaker\Root\Program Files\CrystalDisk"
-7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_1_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul
+7za.exe x -y "%~dp0RescueMaker\CrystalDiskInfo9_3_1.zip" -o"%~dp0RescueMaker\Root\Program Files\CrystalDisk">nul
 POPD
 EXIT /b
 

@@ -323,17 +323,11 @@ SET "L2="
 FOR %%# IN (D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 	SET CURRENT=%%#
 	IF NOT EXIST !CURRENT!:\* (
-		SET UNUSABLE=0
 		FOR /F "usebackq tokens=3" %%# in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (
-			IF /I "%%#"=="CD-ROM" (
-				SET UNUSABLE=1
-			)
-			IF NOT "!UNUSABLE!"=="1" (
-				FOR /F "usebackq tokens=3" %%# in (`FSUTIL FSINFO drivetype !CURRENT!:`) DO (
-					IF /I "%%#"=="No" (
-						SET L!LT!=!CURRENT!
-						SET /A LT-=1
-					)
+			IF /I NOT "%%#"=="CD-ROM" (
+				IF /I "%%#"=="No" (
+					SET L!LT!=!CURRENT!
+					SET /A LT-=1
 				)
 			)
 		)

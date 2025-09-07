@@ -21,6 +21,7 @@ IF /I NOT "%~dp0" == "%ProgramData%\" (
 	>nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
 	CD.>"%ProgramData%\launcher.RescueMaker"
 	>nul 2>&1 COPY /Y "%~f0" "%ProgramData%"
+	
 	CALL :SETTERMINAL
 	>nul 2>&1 FLTMC && (
 		TITLE Re-Launching...
@@ -50,8 +51,7 @@ MD "%~dp0RescueMaker\Junkbin">nul
 MD "%~dp0RescueMaker\Root">nul
 REM Get 7-Zip - Wimlib-ImageX - SetACL
 CLS
-ECHO/
-ECHO Getting Utilities...
+ECHO Creating Rescue Media from HostOS...
 PUSHD "%~dp0RescueMaker"
 PUSHD "%~dp0RescueMaker\Junkbin"
 POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://www.7-zip.org/a/7zr.exe -Destination '%~dp0RescueMaker\Junkbin\7zr.exe'"; "Start-BitsTransfer -Priority Foreground -Source https://www.7-zip.org/a/7z2300-extra.7z -Destination '%~dp0RescueMaker\Junkbin\7zExtra.7z'"; "Start-BitsTransfer -Priority Foreground -Source https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -Destination '%~dp0RescueMaker\Junkbin\wimlib.zip'"; "Start-BitsTransfer -Priority Foreground -Source https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -Destination '%~dp0RescueMaker\Junkbin\SetACL.zip'"
@@ -61,9 +61,6 @@ POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://www.
 7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul
 POPD
 REM Find a recovery partition
-ECHO/
-ECHO Creating Rescue Media from HostOS...
-ECHO/
 SET "NOUNMOUNT="
 SET "WinRePath=Recovery\WindowsRE"
 FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
@@ -72,12 +69,10 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
 	MOUNTVOL !L1!: %%#>nul
 
 :EXTRACT
-	IF EXIST !L1!:\!WinRePath!\WinRE.wim (
-		wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Windows" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-		wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Program Files" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-		wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Program Files (x86)" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-		wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\ProgramData" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
-		wimlib-imagex extract !L1!:\!WinRePath!\WinRE.wim 1 "\Users" --no-acls --no-attributes --dest-dir="%~dp0RescueMaker\Root"
+	IF EXIST "!L1!:\!WinRePath!\WinRE.wim" (
+		XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
+		ATTRIB -A -H -R -S "%~dp0RescueMaker\boot.wim" >nul
+		Dism /Mount-Wim /WimFile:"%~dp0RescueMaker\boot.wim" /Index:1 /MountDir:"%~dp0RescueMaker\Root"
 		GOTO EXTRACTED
 	)
 
@@ -103,7 +98,6 @@ ENDLOCAL
 REM Configure Rescue Disk
 ECHO/
 ECHO Adding Tools...
-ECHO/
 CALL :GETHDDTEST
 CALL :GETCHKDSKGUI
 CALL :GETDISMPLUS
@@ -112,6 +106,17 @@ CALL :GETEXPLORER
 CALL :GETLAUNCHER
 CALL :GETWALLPAPER
 CALL :SETSTARTUP
+REM Unmount and Commit
+COPY "%~dp0RescueMaker\Root\Windows\Boot\DVD\EFI\boot.sdi" "%~dp0RescueMaker" /Y>nul
+COPY "%~dp0RescueMaker\Root\Windows\Boot\EFI\bootmgr.efi" "%~dp0RescueMaker" /Y>nul
+COPY "%~dp0RescueMaker\Root\Windows\Boot\PXE\bootmgr.exe" "%~dp0RescueMaker" /Y>nul
+set SystemHive="%~dp0RescueMaker\Root\Windows\System32\config\SYSTEM"
+set ShellPath="%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe"
+reg load HKLM\WinRESystem %SystemHive% >NUL
+>nul 2>&1 reg add "HKLM\WinRESystem\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /t REG_SZ /d %ShellPath% /f
+reg unload HKLM\WinRESystem >NUL
+Dism /Unmount-Wim /MountDir:"%~dp0RescueMaker\Root" /Commit
+"%~dp0RescueMaker\wimlib-imagex.exe" update "%~dp0RescueMaker\boot.wim" 1 --command="add '%~dp0RescueMaker\winre.jpg' /Windows/System32/winre.jpg">nul
 
 :BURNMENU
 SET "USBDISK="
@@ -173,9 +178,58 @@ CALL :AVAILABLEDRIVELETTERS 2
 >nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel RescueDisk"
 ECHO Copying files to USB, Please Wait... ^(This may take a few minutes^)
 ECHO/
-XCOPY "%~dp0RescueMaker\Root\" "!L1!:\" /E /H /C /I /Y /Z /G /Q
-ECHO/
-BCDBOOT !L1!:\Windows /s !L2!: /f ALL /d /addlast
+MD "!L2!:\sources">nul
+XCOPY "%~dp0RescueMaker\boot.wim" "!L2!:\sources" /E /H /C /-I /Y /Z /G /Q>nul
+COPY "%~dp0RescueMaker\boot.sdi" "!L2!:\" /Y>nul
+COPY "%~dp0RescueMaker\bootmgr.exe" "!L2!:\" /Y>nul
+COPY "%~dp0RescueMaker\bootmgr.efi" "!L2!:\" /Y>nul
+BCDBOOT %SystemDrive%\Windows /s !L2!: /f ALL
+DEL /F /Q "!L2!:\boot\BCD"
+DEL /F /Q "!L2!:\efi\microsoft\boot\BCD"
+set TargetBCD="!L2!:\boot\BCD"
+bcdedit /createstore %TargetBCD% >NUL
+bcdedit /store %TargetBCD% /create {ramdiskoptions} /d "Ramdisk options" >NUL
+bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdidevice boot >NUL
+bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdipath \boot.sdi >NUL
+bcdedit /store %TargetBCD% /create {bootmgr} /d "PE Boot Manager" >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} device boot >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} path \bootmgr.exe >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} timeout 5 >NUL
+for /f "usebackq tokens=2 delims={}" %%# in (`bcdedit /store %TargetBCD% /create /application osloader /d "RescueMaker"`) do (
+    set "GUID={%%#}"
+)
+bcdedit /store %TargetBCD% /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
+bcdedit /store %TargetBCD% /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
+bcdedit /store %TargetBCD% /set !GUID! path \windows\system32\winload.exe >NUL
+bcdedit /store %TargetBCD% /set !GUID! systemroot \windows >NUL
+bcdedit /store %TargetBCD% /set !GUID! description "Windows Preinstallation Environment" >NUL
+bcdedit /store %TargetBCD% /set !GUID! winpe Yes >NUL
+bcdedit /store %TargetBCD% /set !GUID! nointegritychecks Yes >NUL
+bcdedit /store %TargetBCD% /set !GUID! testsigning Yes >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} default !GUID! >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} displayorder !GUID! >NUL
+set TargetBCD="!L2!:\efi\microsoft\boot\BCD"
+bcdedit /createstore %TargetBCD% >NUL
+bcdedit /store %TargetBCD% /create {ramdiskoptions} /d "Ramdisk options" >NUL
+bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdidevice boot >NUL
+bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdipath \boot.sdi >NUL
+bcdedit /store %TargetBCD% /create {bootmgr} /d "PE Boot Manager" >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} device boot >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} path \bootmgr.efi >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} timeout 5 >NUL
+for /f "usebackq tokens=2 delims={}" %%# in (`bcdedit /store %TargetBCD% /create /application osloader /d "RescueMaker"`) do (
+    set "GUID={%%#}"
+)
+bcdedit /store %TargetBCD% /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
+bcdedit /store %TargetBCD% /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
+bcdedit /store %TargetBCD% /set !GUID! path \windows\system32\winload.efi >NUL
+bcdedit /store %TargetBCD% /set !GUID! systemroot \windows >NUL
+bcdedit /store %TargetBCD% /set !GUID! description "Windows Preinstallation Environment" >NUL
+bcdedit /store %TargetBCD% /set !GUID! winpe Yes >NUL
+bcdedit /store %TargetBCD% /set !GUID! nointegritychecks Yes >NUL
+bcdedit /store %TargetBCD% /set !GUID! testsigning Yes >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} default !GUID! >NUL
+bcdedit /store %TargetBCD% /set {bootmgr} displayorder !GUID! >NUL
 MOUNTVOL !L2!: /D>nul
 SETLOCAL DISABLEDELAYEDEXPANSION
 ECHO/
@@ -296,12 +350,10 @@ EXIT /b
 
 :GETLAUNCHER
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://github.com/complexlogic/flex-launcher/releases/download/v2.1/flex-launcher-2.1-win64.zip -Destination '%~dp0RescueMaker\flex-launcher-2.1-win64.zip'"; "Start-BitsTransfer -Priority Foreground -Source https://github.com/illsk1lls/RescueMaker/raw/main/.resources/flex/icons.7z -Destination '%~dp0RescueMaker\icons.7z'"
-7za.exe x -y "%~dp0RescueMaker\flex-launcher-2.1-win64.zip" -o"%~dp0RescueMaker">nul
-XCOPY "%~dp0RescueMaker\flex-launcher-2.1-win64\" "%~dp0RescueMaker\Root\Windows" /E /H /C /I /Y /Z /G /Q>nul
-7za.exe x -y "%~dp0RescueMaker\icons.7z" -o"%~dp0RescueMaker\Root\Windows\assets\icons">nul
+POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://github.com/illsk1lls/RescueMaker/raw/main/.resources/wxs/WinXShell.7z -Destination '%~dp0RescueMaker\WinXShell.7z'"
+MD "%~dp0RescueMaker\Root\Program Files\WinXShell"
+7za.exe x -y "%~dp0RescueMaker\WinXShell.7z" -o"%~dp0RescueMaker\Root\Program Files\WinXShell">nul
 POPD
-POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://raw.githubusercontent.com/illsk1lls/RescueMaker/main/.resources/flex/config.ini -Destination '%~dp0RescueMaker\Root\Windows\config.ini'"
 EXIT /b
 
 :GETWALLPAPER
@@ -311,8 +363,8 @@ EXIT /b
 
 :SETSTARTUP
 (
-	ECHO [LaunchApp]
-	ECHO AppPath=%%SystemDrive%%\Windows\flex-launcher.exe
+	ECHO [LaunchApps]
+	ECHO ^"%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe^", regist, -WinPE
 )>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
 EXIT /b
 
@@ -349,7 +401,6 @@ SET "RT=1"
 SET "R1="
 FOR %%# IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 	IF EXIST %%#:\Recovery\WindowsRE\WinRE.wim (
-		SET NOUNMOUNT=1
 		SET R!RT!=%%#
 		SET /A RT+=1
 	)

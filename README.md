@@ -26,7 +26,7 @@ Wimlib-Imagex - <a href="https://wimlib.net">https://wimlib.net</a><br>
 Helge Klein - <a href="https://helgeklein.com/setacl/">https://helgeklein.com/setacl/</a><br>
 
 -----<br>
-ADDITIONAL NOTES: The tool momentarily adds registry entries to the current user, for window control (i.e. centering cmd window), and to request admin rights, which are required for BCD creation. These keys are immediately removed after they are added, they only need to be in place during the appropriate moments.
+ADDITIONAL NOTES: The tool momentarily adds registry entries to the current user, for window control (i.e. centering cmd window), and to request admin rights, which are required for BCD creation. These keys are immediately removed after they are added, they only need to be in place during the appropriate moments.<br>
 -----<br>
 
 To create a more full featured rescue media try the Win10XPE project. (I am not affiliated with them, but a huge fan)<br>

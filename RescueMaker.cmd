@@ -106,6 +106,7 @@ CALL :GETUNLOCKER
 CALL :GETEXPLORER
 CALL :GETLAUNCHER
 CALL :GETWALLPAPER
+CALL :DESKTOPSHORTCUTS
 CALL :SETSTARTUP
 REM Unmount and Commit
 COPY "%~dp0RescueMaker\Root\Windows\Boot\DVD\EFI\boot.sdi" "%~dp0RescueMaker" /Y>nul
@@ -325,6 +326,14 @@ EXIT /b
 	ECHO [LaunchApps]
 	ECHO ^"%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe^", regist, -WinPE
 )>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
+EXIT /b
+
+:DESKTOPSHORTCUTS
+>nul 2>&1 MD "%~dp0RescueMaker\Root\Windows\System32\config\systemprofile\Desktop"
+>nul 2>&1 powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%~dp0RescueMaker\Root\Windows\System32\config\systemprofile\Desktop\Windows Login Unlocker.lnk'); $s.TargetPath = 'X:\Windows\System32\WLU.exe'; $s.WorkingDirectory = 'X:\Windows\System32'; $s.IconLocation = 'X:\Windows\System32\WLU.exe,0'; $s.Description = 'Windows Login Unlocker'; $s.Save()"
+>nul 2>&1 powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%~dp0RescueMaker\Root\Windows\System32\config\systemprofile\Desktop\DISM++.lnk'); $s.TargetPath = 'X:\Program Files\DISM++\DISM++x64.exe'; $s.WorkingDirectory = 'X:\Program Files\DISM++'; $s.IconLocation = 'X:\Program Files\DISM++\DISM++x64.exe,0'; $s.Description = 'DISM++'; $s.Save()"
+>nul 2>&1 powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%~dp0RescueMaker\Root\Windows\System32\config\systemprofile\Desktop\CrystalDiskInfo.lnk'); $s.TargetPath = 'X:\Program Files\CrystalDisk\DiskInfo64.exe'; $s.WorkingDirectory = 'X:\Program Files\CrystalDisk'; $s.IconLocation = 'X:\Program Files\CrystalDisk\DiskInfo64.exe,0'; $s.Description = 'CrystalDiskInfo'; $s.Save()"
+>nul 2>&1 powershell -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%~dp0RescueMaker\Root\Windows\System32\config\systemprofile\Desktop\ChkDskGUI.lnk'); $s.TargetPath = 'X:\Program Files\ChkDskGUI\ChkDsk-gui_x64.exe'; $s.WorkingDirectory = 'X:\Program Files\ChkDskGUI'; $s.IconLocation = 'X:\Program Files\ChkDskGUI\ChkDsk-gui_x64.exe,0'; $s.Description = 'ChkDskGUI'; $s.Save()"
 EXIT /b
 
 :MAKEBCD

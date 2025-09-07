@@ -172,7 +172,7 @@ IF "!LASTCHECK!"=="N" (
 CALL :AVAILABLEDRIVELETTERS 2
 >nul 2>&1 POWERSHELL -nop -c "clear-disk -number %USBDISK% -RemoveData -RemoveOEM -Confirm:$false"
 >nul 2>&1 POWERSHELL -nop -c "Initialize-Disk -Number %USBDISK% -PartitionStyle MBR"
->nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2!"
+>nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size 2gb -driveletter !L2! -IsActive"
 >nul 2>&1 POWERSHELL -nop -c "new-partition -disknumber %USBDISK% -size $MaxSize -driveletter !L1!"
 >nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L2! -FileSystem FAT32 -Force -NewFileSystemLabel BOOTFILES"
 >nul 2>&1 POWERSHELL -nop -c "Format-Volume -DriveLetter !L1! -FileSystem NTFS -Force -NewFileSystemLabel RescueDisk"

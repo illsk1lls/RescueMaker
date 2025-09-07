@@ -8,7 +8,7 @@ When you can't get into your machine, this can be used as a quick way to check H
 add/remove drivers, run basic repairs, recover files, or reset passwords.<br>
 
 Credit to:<br>
-Flex-Launcher - <a href="https://github.com/complexlogic/flex-launcher">https://github.com/complexlogic/flex-launcher</a><br>
+WinXShell - <a href="https://github.com/slorelee/PExplorer/issues/1#issuecomment-1807020710">https://github.com/slorelee/PExplorer/issues/1#issuecomment-1807020710</a><br>
 DISM++ - <a href="https://github.com/Chuyu-Team/Dism-Multi-language/releases">https://github.com/Chuyu-Team/Dism-Multi-language/releases</a><br>
 Explorer++ - <a href="https://explorerplusplus.com">https://explorerplusplus.com</a><br>
 ChkDsk GUI - Chris Hall 06' ;)<br>

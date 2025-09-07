@@ -10,8 +10,9 @@ add/remove drivers, run basic repairs, recover files, or reset passwords.<br>
 Instructions:<br>
 
 1.) Download/Run the .CMD file<br>
-2.) Select a USB to burn to (press enter to refresh list if needed)<br>
-3.) Done.<br>
+2.) Select a USB from to burn to by disk number (e.g. 1, 2, 3 - press enter to refresh list if needed)<br>
+
+NOTE: Use caution when selecting a drive. The tool will only burn to USB devices, but the USB will be erased/overwritten.
 
 Credit to:<br>
 WinXShell - <a href="https://github.com/slorelee/PExplorer/issues/1#issuecomment-1807020710">https://github.com/slorelee/PExplorer/issues/1#issuecomment-1807020710</a><br>
@@ -24,6 +25,8 @@ Wimlib-Imagex - <a href="https://wimlib.net">https://wimlib.net</a><br>
 7zip - <a href="https://www.7-zip.org/">https://www.7-zip.org/</a><br>
 Helge Klein - <a href="https://helgeklein.com/setacl/">https://helgeklein.com/setacl/</a><br>
 
+-----
+ADDITIONAL NOTES: The tool momentarily adds registry entries to the current user, for window control (i.e. centering cmd window), and to request admin rights, which are required for BCD creation. These keys are immediately removed after they are added, they only need to be in place during the appropriate moments.
 -----
 
 To create a more full featured rescue media try the Win10XPE project. (I am not affiliated with them, but a huge fan)<br>

@@ -7,6 +7,12 @@ Create and burn a simple bootable rescue USB with any Win10/11 host OS.<br>
 When you can't get into your machine, this can be used as a quick way to check HDD/SSD health,<br> 
 add/remove drivers, run basic repairs, recover files, or reset passwords.<br>
 
+Instructions:<br>
+
+1.) Download/Run the .CMD file<br>
+2.) Select a USB to burn to (press enter to refresh list if needed)<br>
+3.) Done.<br>
+
 Credit to:<br>
 WinXShell - <a href="https://github.com/slorelee/PExplorer/issues/1#issuecomment-1807020710">https://github.com/slorelee/PExplorer/issues/1#issuecomment-1807020710</a><br>
 DISM++ - <a href="https://github.com/Chuyu-Team/Dism-Multi-language/releases">https://github.com/Chuyu-Team/Dism-Multi-language/releases</a><br>

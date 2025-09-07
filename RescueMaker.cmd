@@ -58,6 +58,7 @@ POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://www.
 7zr.exe e -y 7zExtra.7z>nul
 7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul
 7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul
+REM SetACL is not currently used but is useful, I'll leave this here for testing
 7za.exe e -y SetACL.zip "SetACL (executable version)\64 bit\SetACL.exe" -r -o..>nul
 POPD
 REM Find a recovery partition
@@ -72,7 +73,7 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
 	IF EXIST "!L1!:\!WinRePath!\WinRE.wim" (
 		XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
 		ATTRIB -A -H -R -S "%~dp0RescueMaker\boot.wim" >nul
-		Dism /Mount-Wim /WimFile:"%~dp0RescueMaker\boot.wim" /Index:1 /MountDir:"%~dp0RescueMaker\Root"
+		DISM /Mount-Wim /WimFile:"%~dp0RescueMaker\boot.wim" /Index:1 /MountDir:"%~dp0RescueMaker\Root"
 		GOTO EXTRACTED
 	)
 
@@ -110,12 +111,12 @@ REM Unmount and Commit
 COPY "%~dp0RescueMaker\Root\Windows\Boot\DVD\EFI\boot.sdi" "%~dp0RescueMaker" /Y>nul
 COPY "%~dp0RescueMaker\Root\Windows\Boot\EFI\bootmgr.efi" "%~dp0RescueMaker" /Y>nul
 COPY "%~dp0RescueMaker\Root\Windows\Boot\PXE\bootmgr.exe" "%~dp0RescueMaker" /Y>nul
-set SystemHive="%~dp0RescueMaker\Root\Windows\System32\config\SYSTEM"
-set ShellPath="%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe"
-reg load HKLM\WinRESystem %SystemHive% >NUL
->nul 2>&1 reg add "HKLM\WinRESystem\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /t REG_SZ /d %ShellPath% /f
-reg unload HKLM\WinRESystem >NUL
-Dism /Unmount-Wim /MountDir:"%~dp0RescueMaker\Root" /Commit
+SET SYSTEMHIVE="%~dp0RescueMaker\Root\Windows\System32\config\SYSTEM"
+SET SHELLPATH="%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe"
+REG LOAD HKLM\WinRESystem %SYSTEMHIVE% >NUL
+>nul 2>&1 reg add "HKLM\WinRESystem\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /t REG_SZ /d %SHELLPATH% /f
+REG UNLOAD HKLM\WinRESystem >NUL
+DISM /Unmount-Wim /MountDir:"%~dp0RescueMaker\Root" /Commit
 "%~dp0RescueMaker\wimlib-imagex.exe" update "%~dp0RescueMaker\boot.wim" 1 --command="add '%~dp0RescueMaker\winre.jpg' /Windows/System32/winre.jpg">nul
 
 :BURNMENU
@@ -186,50 +187,8 @@ COPY "%~dp0RescueMaker\bootmgr.efi" "!L2!:\" /Y>nul
 BCDBOOT %SystemDrive%\Windows /s !L2!: /f ALL
 DEL /F /Q "!L2!:\boot\BCD"
 DEL /F /Q "!L2!:\efi\microsoft\boot\BCD"
-set TargetBCD="!L2!:\boot\BCD"
-bcdedit /createstore %TargetBCD% >NUL
-bcdedit /store %TargetBCD% /create {ramdiskoptions} /d "Ramdisk options" >NUL
-bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdidevice boot >NUL
-bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdipath \boot.sdi >NUL
-bcdedit /store %TargetBCD% /create {bootmgr} /d "PE Boot Manager" >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} device boot >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} path \bootmgr.exe >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} timeout 5 >NUL
-for /f "usebackq tokens=2 delims={}" %%# in (`bcdedit /store %TargetBCD% /create /application osloader /d "RescueMaker"`) do (
-    set "GUID={%%#}"
-)
-bcdedit /store %TargetBCD% /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
-bcdedit /store %TargetBCD% /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
-bcdedit /store %TargetBCD% /set !GUID! path \windows\system32\winload.exe >NUL
-bcdedit /store %TargetBCD% /set !GUID! systemroot \windows >NUL
-bcdedit /store %TargetBCD% /set !GUID! description "Windows Preinstallation Environment" >NUL
-bcdedit /store %TargetBCD% /set !GUID! winpe Yes >NUL
-bcdedit /store %TargetBCD% /set !GUID! nointegritychecks Yes >NUL
-bcdedit /store %TargetBCD% /set !GUID! testsigning Yes >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} default !GUID! >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} displayorder !GUID! >NUL
-set TargetBCD="!L2!:\efi\microsoft\boot\BCD"
-bcdedit /createstore %TargetBCD% >NUL
-bcdedit /store %TargetBCD% /create {ramdiskoptions} /d "Ramdisk options" >NUL
-bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdidevice boot >NUL
-bcdedit /store %TargetBCD% /set {ramdiskoptions} ramdisksdipath \boot.sdi >NUL
-bcdedit /store %TargetBCD% /create {bootmgr} /d "PE Boot Manager" >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} device boot >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} path \bootmgr.efi >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} timeout 5 >NUL
-for /f "usebackq tokens=2 delims={}" %%# in (`bcdedit /store %TargetBCD% /create /application osloader /d "RescueMaker"`) do (
-    set "GUID={%%#}"
-)
-bcdedit /store %TargetBCD% /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
-bcdedit /store %TargetBCD% /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
-bcdedit /store %TargetBCD% /set !GUID! path \windows\system32\winload.efi >NUL
-bcdedit /store %TargetBCD% /set !GUID! systemroot \windows >NUL
-bcdedit /store %TargetBCD% /set !GUID! description "Windows Preinstallation Environment" >NUL
-bcdedit /store %TargetBCD% /set !GUID! winpe Yes >NUL
-bcdedit /store %TargetBCD% /set !GUID! nointegritychecks Yes >NUL
-bcdedit /store %TargetBCD% /set !GUID! testsigning Yes >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} default !GUID! >NUL
-bcdedit /store %TargetBCD% /set {bootmgr} displayorder !GUID! >NUL
+CALL :MAKEBCD "!L2!:\boot\BCD" BIOS
+CALL :MAKEBCD "!L2!:\efi\microsoft\boot\BCD" UEFI
 MOUNTVOL !L2!: /D>nul
 SETLOCAL DISABLEDELAYEDEXPANSION
 ECHO/
@@ -366,6 +325,35 @@ EXIT /b
 	ECHO [LaunchApps]
 	ECHO ^"%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe^", regist, -WinPE
 )>"%~dp0RescueMaker\Root\Windows\System32\winpeshl.ini"
+EXIT /b
+
+:MAKEBCD
+IF /I "%2"=="UEFI" (
+SET "LOADER=fi"
+) ELSE (
+SET "LOADER=xe"
+)
+BCDEDIT /createstore %1 >NUL
+BCDEDIT /store %1 /create {ramdiskoptions} /d "Ramdisk options" >NUL
+BCDEDIT /store %1 /set {ramdiskoptions} ramdisksdidevice boot >NUL
+BCDEDIT /store %1 /set {ramdiskoptions} ramdisksdipath \boot.sdi >NUL
+BCDEDIT /store %1 /create {bootmgr} /d "PE Boot Manager" >NUL
+BCDEDIT /store %1 /set {bootmgr} device boot >NUL
+BCDEDIT /store %1 /set {bootmgr} path \bootmgr.e%LOADER% >NUL
+BCDEDIT /store %1 /set {bootmgr} timeout 5 >NUL
+for /f "usebackq tokens=2 delims={}" %%# in (`BCDEDIT /store %1 /create /application osloader /d "Rescue PE"`) do (
+    set "GUID={%%#}"
+)
+BCDEDIT /store %1 /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
+BCDEDIT /store %1 /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
+BCDEDIT /store %1 /set !GUID! path \windows\system32\winload.e%LOADER% >NUL
+BCDEDIT /store %1 /set !GUID! systemroot \windows >NUL
+BCDEDIT /store %1 /set !GUID! description "Windows Preinstallation Environment" >NUL
+BCDEDIT /store %1 /set !GUID! winpe Yes >NUL
+BCDEDIT /store %1 /set !GUID! nointegritychecks Yes >NUL
+BCDEDIT /store %1 /set !GUID! testsigning Yes >NUL
+BCDEDIT /store %1 /set {bootmgr} default !GUID! >NUL
+BCDEDIT /store %1 /set {bootmgr} displayorder !GUID! >NUL
 EXIT /b
 
 :AVAILABLEDRIVELETTERS

@@ -10,7 +10,7 @@ add/remove drivers, run basic repairs, recover files, or reset passwords.<br>
 Instructions:<br>
 
 1.) Download/Run the .CMD file<br>
-2.) Select a USB from to burn to by disk number (e.g. 1, 2, 3 - press enter to refresh list if needed)<br>
+2.) Select a USB from the list by disk number (e.g. 1, 2, 3 - press enter to refresh list if needed)<br>
 
 NOTE: Use caution when selecting a drive. The tool will only burn to USB devices, but the USB will be erased/overwritten.
 

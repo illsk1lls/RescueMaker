@@ -75,12 +75,14 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
 
 :EXTRACT
 	IF EXIST "!L1!:\!WinRePath!\WinRE.wim" (
-		IF isEleven == 1 (
+		IF DEFINED isEleven (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
+			ECHO IS ELEVEN
 		) ELSE (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\" /H /C /Y /Z /G /Q >nul
+			REN "%~dp0RescueMaker\WinRE.wim" "boot.wim" >nul
+			ECHO NOT ELEVEN
 		)
-		REN "%~dp0RescueMaker\wINre.wim" "boot.wim" >nul
 		ATTRIB -A -H -R -S "%~dp0RescueMaker\boot.wim" >nul
 		DISM /Mount-Wim /WimFile:"%~dp0RescueMaker\boot.wim" /Index:1 /MountDir:"%~dp0RescueMaker\Root"
 		GOTO EXTRACTED
@@ -465,6 +467,7 @@ IF "%LEGACYTERM%"=="0" (
 )
 
 EXIT /b
+
 
 
 

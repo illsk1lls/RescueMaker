@@ -117,8 +117,6 @@ CALL :DESKTOPSHORTCUTS
 CALL :SETSTARTUP
 REM Unmount and Commit
 COPY "%~dp0RescueMaker\Root\Windows\Boot\DVD\EFI\boot.sdi" "%~dp0RescueMaker" /Y>nul
-COPY "%~dp0RescueMaker\Root\Windows\Boot\EFI\bootmgr.efi" "%~dp0RescueMaker" /Y>nul
-COPY "%~dp0RescueMaker\Root\Windows\Boot\PXE\bootmgr.exe" "%~dp0RescueMaker" /Y>nul
 SET SYSTEMHIVE="%~dp0RescueMaker\Root\Windows\System32\config\SYSTEM"
 SET SHELLPATH="%%SystemDrive%%\Program Files\WinXShell\WinXShell_x64.exe"
 REG LOAD HKLM\WinRESystem %SYSTEMHIVE% >NUL
@@ -345,9 +343,9 @@ EXIT /b
 
 :MAKEBCD
 IF /I "%2"=="UEFI" (
-SET "LOADER=fi"
+SET "LOADER=efi"
 ) ELSE (
-SET "LOADER=xe"
+SET "LOADER=exe"
 )
 BCDEDIT /createstore %1 >NUL
 BCDEDIT /store %1 /create {ramdiskoptions} /d "Ramdisk options" >NUL
@@ -355,14 +353,14 @@ BCDEDIT /store %1 /set {ramdiskoptions} ramdisksdidevice boot >NUL
 BCDEDIT /store %1 /set {ramdiskoptions} ramdisksdipath \boot.sdi >NUL
 BCDEDIT /store %1 /create {bootmgr} /d "PE Boot Manager" >NUL
 BCDEDIT /store %1 /set {bootmgr} device boot >NUL
-BCDEDIT /store %1 /set {bootmgr} path \bootmgr.e%LOADER% >NUL
+BCDEDIT /store %1 /set {bootmgr} path \bootmgr >NUL
 BCDEDIT /store %1 /set {bootmgr} timeout 5 >NUL
 for /f "usebackq tokens=2 delims={}" %%# in (`BCDEDIT /store %1 /create /application osloader /d "Rescue PE"`) do (
 	set "GUID={%%#}"
 )
 BCDEDIT /store %1 /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
 BCDEDIT /store %1 /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
-BCDEDIT /store %1 /set !GUID! path \windows\system32\winload.e%LOADER% >NUL
+BCDEDIT /store %1 /set !GUID! path \windows\system32\winload.%LOADER% >NUL
 BCDEDIT /store %1 /set !GUID! systemroot \windows >NUL
 BCDEDIT /store %1 /set !GUID! description "Windows Preinstallation Environment" >NUL
 BCDEDIT /store %1 /set !GUID! winpe Yes >NUL

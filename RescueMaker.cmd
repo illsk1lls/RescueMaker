@@ -16,16 +16,12 @@ FOR /F "usebackq skip=2 tokens=3-4" %%# IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\
 		EXIT
 	)
 )
-POWERSHELL -nop -c "Get-WmiObject -Class Win32_OperatingSystem | Format-List -Property Caption" | find "Windows 11" > nul
-IF %errorlevel% == 0 (
-	SET isEleven=1
-)
 REM Run as Admin, set terminal type, copy self to %ProgramData% and run from there
 IF /I NOT "%~dp0" == "%ProgramData%\" (
 	>nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
 	CD.>"%ProgramData%\launcher.RescueMaker"
 	>nul 2>&1 COPY /Y "%~f0" "%ProgramData%"
-	
+
 	CALL :SETTERMINAL
 	>nul 2>&1 FLTMC && (
 		TITLE Re-Launching...
@@ -68,14 +64,17 @@ POPD
 REM Find a recovery partition
 SET "NOUNMOUNT="
 SET "WinRePath=Recovery\WindowsRE"
-FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
+FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) DO (
 	SETLOCAL ENABLEDELAYEDEXPANSION
 	CALL :AVAILABLEDRIVELETTERS 1
 	MOUNTVOL !L1!: %%#>nul
 
 :EXTRACT
 	IF EXIST "!L1!:\!WinRePath!\WinRE.wim" (
-		IF DEFINED isEleven (
+		FOR /F "usebackq delims=" %%# in (`XCOPY /? ^| findstr /C:"/-I"`) DO (
+			SET newXCOPY=1
+		)
+		IF DEFINED newXCOPY (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
 		) ELSE (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\" /H /C /Y /Z /G /Q >nul
@@ -92,7 +91,7 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
 IF NOT EXIST "%~dp0RescueMaker\Root\Windows\*" (
 	CALL :FINDRE
 	IF "!R1!"=="" (
-		ENDLOCAL 
+		ENDLOCAL
 		ECHO WARNING! - No recovery partition detected. ^(Try using - reagentc /enable - before proceeding^)
 		ECHO/
 		ECHO Aborting process and cleaning up cache folders..
@@ -140,7 +139,7 @@ IF /I EXIST "%~dp0RescueMaker\*.diskpart" (
 	DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
 )
 CLS
-ECHO Loading DISKs...               ^(Target must be USB^)
+ECHO Loading DISKs...				^(Target must be USB^)
 ECHO ===================================================
 CALL :LISTDISKS
 ECHO Press ENTER to refresh
@@ -223,7 +222,7 @@ FOR /F "usebackq skip=2 tokens=1,2,4,5" %%a in (`DISKPART /S "%~dp0RescueMaker\l
 	CALL :GETDISKNAME DNAME
 	CALL :GETDISKTYPE DTYPE
 	SETLOCAL ENABLEDELAYEDEXPANSION
-	ECHO    Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^]
+	ECHO	Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^]
 	ENDLOCAL
 	DEL "%~dp0RescueMaker\currentdisk.diskpart" /F /Q>nul
 )
@@ -263,10 +262,10 @@ FOR /F "usebackq skip=2 tokens=1,2,4,5" %%a in (`DISKPART /S "%~dp0RescueMaker\l
 		CALL :GETDISKNAME DNAME
 		CALL :GETDISKTYPE DTYPE
 		SETLOCAL ENABLEDELAYEDEXPANSION
-		ECHO    Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^] will be completely erased.
+		ECHO	Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^] will be completely erased.
 		ECHO/
 		ENDLOCAL
-		CHOICE /C YN /N /M "    Are you sure? This process is irreversable. [Y/N]: "
+		CHOICE /C YN /N /M "	Are you sure? This process is irreversable. [Y/N]: "
 		IF !errorlevel!==2 (
 			SET "%2=N"
 		)
@@ -360,7 +359,7 @@ BCDEDIT /store %1 /set {bootmgr} device boot >NUL
 BCDEDIT /store %1 /set {bootmgr} path \bootmgr.e%LOADER% >NUL
 BCDEDIT /store %1 /set {bootmgr} timeout 5 >NUL
 for /f "usebackq tokens=2 delims={}" %%# in (`BCDEDIT /store %1 /create /application osloader /d "Rescue PE"`) do (
-    set "GUID={%%#}"
+	set "GUID={%%#}"
 )
 BCDEDIT /store %1 /set !GUID! device ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL
 BCDEDIT /store %1 /set !GUID! osdevice ramdisk=[boot]\sources\boot.wim,{ramdiskoptions} >NUL

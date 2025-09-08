@@ -398,6 +398,7 @@ SET "RT=1"
 SET "R1="
 FOR %%# IN (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z) DO (
 	IF EXIST %%#:\Recovery\WindowsRE\WinRE.wim (
+		SET NOUNMOUNT=1
 		SET R!RT!=%%#
 		SET /A RT+=1
 	)
@@ -453,4 +454,5 @@ IF "%isEleven%"=="1" (
 IF "%LEGACYTERM%"=="0" (
 	REG ADD "HKCU\Console" /v ForceV2 /t REG_DWORD /d 0 /f>nul
 )
+
 EXIT /b

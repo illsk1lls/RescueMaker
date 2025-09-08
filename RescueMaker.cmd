@@ -78,9 +78,9 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) DO (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
 		) ELSE (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\" /H /C /Y /Z /G /Q >nul
-			REN "%~dp0RescueMaker\WinRE.wim" "boot.wim" >nul
 		)
-		ATTRIB -A -H -R -S "%~dp0RescueMaker\boot.wim" >nul
+		ATTRIB -A -H -R -S "%~dp0RescueMaker\*.wim" >nul
+		IF EXIST "%~dp0RescueMaker\WinRE.wim" REN "%~dp0RescueMaker\WinRE.wim" "boot.wim" >nul
 		DISM /Mount-Wim /WimFile:"%~dp0RescueMaker\boot.wim" /Index:1 /MountDir:"%~dp0RescueMaker\Root"
 		GOTO EXTRACTED
 	)

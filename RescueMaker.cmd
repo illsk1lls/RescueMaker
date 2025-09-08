@@ -16,6 +16,10 @@ FOR /F "usebackq skip=2 tokens=3-4" %%# IN (`REG QUERY "HKLM\SOFTWARE\Microsoft\
 		EXIT
 	)
 )
+POWERSHELL -nop -c "Get-WmiObject -Class Win32_OperatingSystem | Format-List -Property Caption" | find "Windows 11" > nul
+IF %errorlevel% == 0 (
+	SET isEleven=1
+)
 REM Run as Admin, set terminal type, copy self to %ProgramData% and run from there
 IF /I NOT "%~dp0" == "%ProgramData%\" (
 	>nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
@@ -71,8 +75,7 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) do (
 
 :EXTRACT
 	IF EXIST "!L1!:\!WinRePath!\WinRE.wim" (
-		POWERSHELL -nop -c "Get-WmiObject -Class Win32_OperatingSystem | Format-List -Property Caption" | find "Windows 11" > nul
-		IF %errorlevel% == 0 (
+		IF isEleven == 1 (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
 		) ELSE (
 			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\" /H /C /Y /Z /G /Q >nul
@@ -462,5 +465,6 @@ IF "%LEGACYTERM%"=="0" (
 )
 
 EXIT /b
+
 
 

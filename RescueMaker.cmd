@@ -21,7 +21,6 @@ IF /I NOT "%~dp0" == "%ProgramData%\" (
 	>nul 2>&1 REG ADD HKCU\Software\classes\.RescueMaker\shell\runas\command /f /ve /d "CMD /x /d /r SET \"f0=1\"&CALL \"%%2\" %%3"
 	CD.>"%ProgramData%\launcher.RescueMaker"
 	>nul 2>&1 COPY /Y "%~f0" "%ProgramData%"
-
 	CALL :SETTERMINAL
 	>nul 2>&1 FLTMC && (
 		TITLE Re-Launching...
@@ -139,7 +138,7 @@ IF /I EXIST "%~dp0RescueMaker\*.diskpart" (
 	DEL "%~dp0RescueMaker\*.diskpart" /F /Q>nul
 )
 CLS
-ECHO Loading DISKs...				^(Target must be USB^)
+ECHO Loading DISKs...               ^(Target must be USB^)
 ECHO ===================================================
 CALL :LISTDISKS
 ECHO Press ENTER to refresh
@@ -222,7 +221,7 @@ FOR /F "usebackq skip=2 tokens=1,2,4,5" %%a in (`DISKPART /S "%~dp0RescueMaker\l
 	CALL :GETDISKNAME DNAME
 	CALL :GETDISKTYPE DTYPE
 	SETLOCAL ENABLEDELAYEDEXPANSION
-	ECHO	Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^]
+	ECHO    Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^]
 	ENDLOCAL
 	DEL "%~dp0RescueMaker\currentdisk.diskpart" /F /Q>nul
 )
@@ -262,10 +261,10 @@ FOR /F "usebackq skip=2 tokens=1,2,4,5" %%a in (`DISKPART /S "%~dp0RescueMaker\l
 		CALL :GETDISKNAME DNAME
 		CALL :GETDISKTYPE DTYPE
 		SETLOCAL ENABLEDELAYEDEXPANSION
-		ECHO	Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^] will be completely erased.
+		ECHO    Disk #^[%%b^]-^[%%c %%d^]-^[!DTYPE:USB=USB~!^]-^[!DNAME!^] will be completely erased.
 		ECHO/
 		ENDLOCAL
-		CHOICE /C YN /N /M "	Are you sure? This process is irreversable. [Y/N]: "
+		CHOICE /C YN /N /M "    Are you sure? This process is irreversable. [Y/N]: "
 		IF !errorlevel!==2 (
 			SET "%2=N"
 		)

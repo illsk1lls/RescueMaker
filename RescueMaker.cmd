@@ -70,16 +70,9 @@ FOR /F "usebackq delims=" %%# in (`mountvol^|find "\\"`) DO (
 
 :EXTRACT
 	IF EXIST "!L1!:\!WinRePath!\WinRE.wim" (
-		FOR /F "usebackq delims=" %%# in (`XCOPY /? ^| findstr /C:"/-I"`) DO (
-			SET newXCOPY=1
-		)
-		IF DEFINED newXCOPY (
-			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\boot.wim" /H /C /-I /Y /Z /G /Q >nul
-		) ELSE (
-			XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\" /H /C /Y /Z /G /Q >nul
-		)
+		XCOPY "!L1!:\!WinRePath!\WinRE.wim" "%~dp0RescueMaker\" /H /C /Y /Z /G /Q >nul
 		ATTRIB -A -H -R -S "%~dp0RescueMaker\*.wim" >nul
-		IF EXIST "%~dp0RescueMaker\WinRE.wim" REN "%~dp0RescueMaker\WinRE.wim" "boot.wim" >nul
+		REN "%~dp0RescueMaker\WinRE.wim" "boot.wim" >nul
 		DISM /Mount-Wim /WimFile:"%~dp0RescueMaker\boot.wim" /Index:1 /MountDir:"%~dp0RescueMaker\Root"
 		GOTO EXTRACTED
 	)
@@ -186,10 +179,8 @@ CALL :AVAILABLEDRIVELETTERS 2
 ECHO Copying files to USB, Please Wait... ^(This may take a few minutes^)
 ECHO/
 MD "!L2!:\sources">nul
-XCOPY "%~dp0RescueMaker\boot.wim" "!L2!:\sources" /E /H /C /-I /Y /Z /G /Q>nul
-COPY "%~dp0RescueMaker\boot.sdi" "!L2!:\" /Y>nul
-COPY "%~dp0RescueMaker\bootmgr.exe" "!L2!:\" /Y>nul
-COPY "%~dp0RescueMaker\bootmgr.efi" "!L2!:\" /Y>nul
+XCOPY "%~dp0RescueMaker\boot.wim" "!L2!:\sources\" /E /H /C /Y /Z /G /Q>nul
+XCOPY "%~dp0RescueMaker\boot.sdi" "!L2!:\" /E /H /C /Y /Z /G /Q>nul
 BCDBOOT %SystemDrive%\Windows /s !L2!: /f ALL
 DEL /F /Q "!L2!:\boot\BCD"
 DEL /F /Q "!L2!:\efi\microsoft\boot\BCD"

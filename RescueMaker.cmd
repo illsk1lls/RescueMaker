@@ -452,8 +452,3 @@ IF "%LEGACYTERM%"=="0" (
 )
 
 EXIT /b
-
-
-
-
-

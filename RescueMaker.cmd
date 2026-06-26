@@ -53,7 +53,7 @@ CLS
 ECHO Creating Rescue Media from HostOS...
 PUSHD "%~dp0RescueMaker"
 PUSHD "%~dp0RescueMaker\Junkbin"
-POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://www.7-zip.org/a/7zr.exe -Destination '%~dp0RescueMaker\Junkbin\7zr.exe'"; "Start-BitsTransfer -Priority Foreground -Source https://www.7-zip.org/a/7z2301-extra.7z -Destination '%~dp0RescueMaker\Junkbin\7zExtra.7z'"; "Start-BitsTransfer -Priority Foreground -Source https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -Destination '%~dp0RescueMaker\Junkbin\wimlib.zip'"; "Start-BitsTransfer -Priority Foreground -Source https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -Destination '%~dp0RescueMaker\Junkbin\SetACL.zip'"
+POWERSHELL -nop -c "Start-BitsTransfer -Priority Foreground -Source https://github.com/ip7z/7zip/releases/download/26.02/7zr.exe -Destination '%~dp0RescueMaker\Junkbin\7zr.exe'"; "Start-BitsTransfer -Priority Foreground -Source https://github.com/ip7z/7zip/releases/download/26.02/7z2602-extra.7z -Destination '%~dp0RescueMaker\Junkbin\7zExtra.7z'"; "Start-BitsTransfer -Priority Foreground -Source https://wimlib.net/downloads/wimlib-1.14.1-windows-x86_64-bin.zip -Destination '%~dp0RescueMaker\Junkbin\wimlib.zip'"; "Start-BitsTransfer -Priority Foreground -Source https://helgeklein.com/downloads/SetACL/current/SetACL%%203.1.2%%20`(executable%%20version`).zip -Destination '%~dp0RescueMaker\Junkbin\SetACL.zip'"
 7zr.exe e -y 7zExtra.7z>nul
 7za.exe e -y wimlib.zip libwim-15.dll -r -o..>nul
 7za.exe e -y wimlib.zip wimlib-imagex.exe -r -o..>nul
